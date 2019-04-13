@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  GetFamilyByIdFunction:
+    Properties:
+      CodeUri: s3://hvgn-cf/097a9288206f450291f5f93110a5a734
+      Environment:
+        Variables:
+          PRIVATE_YEAR: 1912
+      Events:
+        GetFamilyByIdApi:
+          Properties:
+            Method: get
+            Path: /family/{id}
+          Type: Api
+      Handler: get-family-by-id.handler
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+        - Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+          Effect: Allow
+          Resource: arn:aws:dynamodb:us-east-1:093879445146:*
+        Version: '2012-10-17'
+      Runtime: nodejs8.10
+      Timeout: 300
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
