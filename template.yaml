@@ -28,6 +28,33 @@ Resources:
             Path: "/family/{id}"
             Method: get
             RestApiId: !Ref HvgnApi
+  GetFamilyByParentIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: nodejs8.10
+      Handler: get-family-by-parent-id.handler
+      CodeUri: get-family-by-parent-id/
+      Timeout: 300
+      Environment:
+        Variables:
+          PRIVATE_YEAR: 1912
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Query
+              Resource: 'arn:aws:dynamodb:us-east-1:093879445146:*'
+      Events:
+        GetFamilyByParentIdApi:
+          Type: Api
+          Properties:
+            Path: "/family/parent/{id}"
+            Method: get
+            RestApiId: !Ref HvgnApi
+  
 
   HvgnApi:
     Type: AWS::Serverless::Api
@@ -54,6 +81,46 @@ Resources:
               x-amazon-apigateway-integration:
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFamilyByIdFunction.Arn}/invocations
+                responses: {}
+                httpMethod: "POST"
+                type: "aws_proxy"
+              security:
+                - api_key: []
+            options:
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'http://hvgn.s3-website-us-east-1.amazonaws.com'"
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: mock
+          family/parent/{id}:
+            get:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                type: "string"
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFamilyByParentIdFunction.Arn}/invocations
                 responses: {}
                 httpMethod: "POST"
                 type: "aws_proxy"
