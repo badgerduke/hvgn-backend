@@ -28,12 +28,12 @@ Resources:
             Path: "/family/{id}"
             Method: get
             RestApiId: !Ref HvgnApi
-  GetFamilyByParentIdFunction:
+  GetFamilyIdByParentIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       Runtime: nodejs8.10
-      Handler: get-family-by-parent-id.handler
-      CodeUri: get-family-by-parent-id/
+      Handler: get-family-id-by-parent-id.handler
+      CodeUri: get-family-id-by-parent-id/
       Timeout: 300
       Environment:
         Variables:
@@ -48,10 +48,10 @@ Resources:
                 - dynamodb:Query
               Resource: 'arn:aws:dynamodb:us-east-1:093879445146:*'
       Events:
-        GetFamilyByParentIdApi:
+        GetFamilyIdByParentIdApi:
           Type: Api
           Properties:
-            Path: "/family/parent/{id}"
+            Path: "/familyid/parent/{id}"
             Method: get
             RestApiId: !Ref HvgnApi
   
@@ -111,7 +111,7 @@ Resources:
                 requestTemplates:
                   application/json: "{\"statusCode\": 200}"
                 type: mock
-          family/parent/{id}:
+          familyid/parent/{id}:
             get:
               parameters:
               - name: "id"
@@ -120,7 +120,7 @@ Resources:
                 type: "string"
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFamilyByParentIdFunction.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFamilyIdByParentIdFunction.Arn}/invocations
                 responses: {}
                 httpMethod: "POST"
                 type: "aws_proxy"
