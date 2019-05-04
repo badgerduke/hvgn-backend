@@ -114,6 +114,8 @@ module.exports.handler = async function(event, context) {
   if (!response.statusCode) {
     response.statusCode = 200;
     response.body = JSON.stringify(bodyToReturn);
+    response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com'};
+
   }
 
   return response;
