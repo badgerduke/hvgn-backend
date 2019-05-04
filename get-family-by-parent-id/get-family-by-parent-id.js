@@ -68,6 +68,7 @@ module.exports.handler = async (event, context)  => {
 
     for (let j = 0; j < childDataPromises.length; j++) {
         singleChildData = await childDataPromises[j];
+        console.log(`singleChildData ${singleChildData}`);
         childData.push(privatizeIndividual(singleChildData.Item));
     }
 
