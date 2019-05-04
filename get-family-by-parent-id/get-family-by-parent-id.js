@@ -12,7 +12,7 @@ const completeDateRegex = new RegExp(/^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL
 module.exports.handler = async (event, context)  => {
 
     const bodyToReturn = {parents:[], children:[]};
-    const parentId = event.pathParameters.parentid;
+    const parentId = event.pathParameters.id;
     const response = {};
     console.log("parentId = " + parentId);
     try {
