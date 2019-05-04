@@ -89,10 +89,7 @@ module.exports.handler = async function(event, context) {
         const childId = extractValue(childData[k], "INDVID", "S");
         const natural = extractNaturalFromChildren(childrenData.Items, childId);
         const fams = extractValue(childData[k], "FAMS", "SS");
-        let futureFamily = false;
-        if (fams && fams.length) {
-            futureFamily = true;
-        }
+        const familyIdToDisplay = getMinimumInArray(fams);
         bodyToReturn.children.push({
           childId: childId,
           surname: `${extractValue(childData[k], "SURN", "S")}`,
@@ -102,7 +99,7 @@ module.exports.handler = async function(event, context) {
           sex: extractValue(childData[k], "SEX", "S"),
           naturalOfFather: natural.father,
           naturalOfMother: natural.mother,
-          futureFamily: futureFamily
+          familyIdToDisplay: familyIdToDisplay
         });
       }
     }
@@ -187,6 +184,16 @@ let extractNaturalFromChildren = function(childrenTableItems, childId) {
 
   return natural;
 };
+
+let getMinimumInArray = function(array) {
+  if (array && array.length) {
+    array.sort((a, b) => a - b);
+    return JSON.stringify(Number(array[0]));
+  }
+  else {
+    return null;
+  }
+}
 
 let getItem = function(tableName, projectExpression, key, sortKey) {
   const request = {
