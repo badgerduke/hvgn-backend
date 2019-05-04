@@ -74,7 +74,7 @@ module.exports.handler = async function(event, context) {
         childDataPromises.push(
           getItem(
             "Individual",
-            "INDVID, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
+            "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
             ddbKey("INDVID", childrenData.Items[i].CHILDID.S, "S")
           )
         );
