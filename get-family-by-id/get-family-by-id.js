@@ -1,11 +1,11 @@
 const AWS = require("aws-sdk");
-const ddb = new AWS.DynamoDB({
+const docClient = new AWS.DynamoDB.DocumentClient({
   apiVersion: "2012-10-08",
   region: "us-east-1"
   /*     region: 'localhost',
     endpoint: "http://localhost:8000", */
 });
-const docClient = ddb.DocumentClient();
+//const docClient = ddb.DocumentClient();
 const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
