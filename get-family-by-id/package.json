@@ -4,7 +4,7 @@
   "description": "A Lambda to back a RESTful service for getting a family by id",
   "main": "index.js",
   "scripts": {
-    "test": "run-local-lambda --file index.js --event ./tests/event.json --timeout 300"
+    "test": "run-local-lambda --file get-family-by-id.js --event ./tests/event.json --timeout 300"
   },
   "author": "Eric Hamacher",
   "license": "MIT",

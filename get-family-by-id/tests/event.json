@@ -26,9 +26,6 @@
         "accountId": null
       }, 
       "stage": "prod"
-    }, 
-    "params" : {
-      "famid": "1"
     },
     "queryStringParameters": {
       "foo": "bar"
@@ -54,7 +51,8 @@
       "Accept-Encoding": "gzip, deflate, sdch"
     }, 
     "pathParameters": {
-      "proxy": "/path/to/resource"
+      "proxy": "/path/to/resource",
+      "id": "1"
     }, 
     "httpMethod": "POST", 
     "stageVariables": {

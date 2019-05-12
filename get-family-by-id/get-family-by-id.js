@@ -94,7 +94,12 @@ module.exports.handler = async function(event, context) {
         const childId = childData[k].INDVID;
         const natural = extractNaturalFromChildren(childrenData.Items, childId);
         const fams = childData[k].FAMS;
-        const familyIdToDisplay = getMinimumInArray(fams);
+        let familyIdToDisplay = null;
+        if (fams) {
+          console.log("fams " + JSON.stringify(fams));
+          familyIdToDisplay = getMinimumInArray(fams.values);
+          console.log("familyIdToDisplay " + familyIdToDisplay);
+        }
         bodyToReturn.children.push({
           childId: childId,
 /*           surname: `${extractValue(childData[k], "SURN", "S")}`,
@@ -178,7 +183,6 @@ let ddbKey = (partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue) =>
 }; */
 
 let privatizeIndividual = individualItem => {
-  console.log("individual item " + JSON.stringify(individualItem));
   let returnedItem = {};
   Object.assign(returnedItem, individualItem);
 
