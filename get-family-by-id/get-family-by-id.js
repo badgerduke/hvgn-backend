@@ -5,6 +5,7 @@ const ddb = new AWS.DynamoDB({
   /*     region: 'localhost',
     endpoint: "http://localhost:8000", */
 });
+const docClient = ddb.DocumentClient();
 const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
@@ -14,12 +15,13 @@ module.exports.handler = async function(event, context) {
   const bodyToReturn = { parents: [], children: [] };
   const familyId = event.pathParameters.id;
   const response = {};
+  response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com, http://localhost:8080'};
 
   try {
     const familyData = await getItem(
       "Family",
       "FAMID, HUSB, WIFE",
-      ddbKey("FAMID", familyId, "S")
+      ddbKey("FAMID", familyId)
     );
     //console.log(`familyData = '${JSON.stringify(familyData)}'`)
     if (Object.entries(familyData).length === 0) {
@@ -28,8 +30,10 @@ module.exports.handler = async function(event, context) {
       response.body = `Family with familyId of '${familyId}' was not found`;
     } else {
       bodyToReturn.familyId = familyId;
-      const father = extractValue(familyData.Item, "HUSB", "S");
-      const mother = extractValue(familyData.Item, "WIFE", "S");
+     // const father = extractValue(familyData.Item, "HUSB", "S");
+     // const mother = extractValue(familyData.Item, "WIFE", "S");
+      const father = familyData.Item.HUSB;
+      const mother = familyData.Item.WIFE;
       let fatherPromise;
       let motherPromise;
       let childrenPromise;
@@ -37,23 +41,23 @@ module.exports.handler = async function(event, context) {
       if (father) {
         fatherPromise = getItem(
           "Individual",
-          "INDVID, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
-          ddbKey("INDVID", father, "S")
+          "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
+          ddbKey("INDVID", father)
         );
       }
       if (mother) {
         motherPromise = getItem(
           "Individual",
-          "INDVID, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
-          ddbKey("INDVID", mother, "S")
+          "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
+          ddbKey("INDVID", mother)
         );
       }
       childrenPromise = queryByGsi(
         "Children",
         "familyIdGSI",
         "FAMID = :a",
-        { ":a": { S: familyId } },
-        "_FREL, _MREL, CHILDID"
+        { ":a": familyId },
+        /* "_FREL, _MREL, CHILDID" */
       );
 
       const fatherData = await fatherPromise;
@@ -75,7 +79,7 @@ module.exports.handler = async function(event, context) {
           getItem(
             "Individual",
             "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
-            ddbKey("INDVID", childrenData.Items[i].CHILDID.S, "S")
+            ddbKey("INDVID", childrenData.Items[i].CHILDID)
           )
         );
       }
@@ -86,17 +90,22 @@ module.exports.handler = async function(event, context) {
       }
 
       for (let k = 0; k < childData.length; k++) {
-        const childId = extractValue(childData[k], "INDVID", "S");
+        const childId = childData[k].INDVID;
         const natural = extractNaturalFromChildren(childrenData.Items, childId);
-        const fams = extractValue(childData[k], "FAMS", "SS");
+        const fams = childData[k].FAMS;
         const familyIdToDisplay = getMinimumInArray(fams);
         bodyToReturn.children.push({
           childId: childId,
-          surname: `${extractValue(childData[k], "SURN", "S")}`,
+/*           surname: `${extractValue(childData[k], "SURN", "S")}`,
           givenName: `${extractValue(childData[k], "GIVEN", "S")}`,
           suffix: `${extractValue(childData[k], "SUFF", "S")}`,
           birthdate: extractValue(childData[k], "BIRTDATE", "S"),
-          sex: extractValue(childData[k], "SEX", "S"),
+          sex: extractValue(childData[k], "SEX", "S"), */
+          surname: `${childData[k].SURN}`,
+          givenName: `${childData[k].GIVEN}`,
+          suffix: `${childData[k].SUFF}`,
+          birthdate: childData[k].BIRTDATE,
+          sex: childData[k].SEX,
           naturalOfFather: natural.father,
           naturalOfMother: natural.mother,
           familyIdToDisplay: familyIdToDisplay
@@ -111,22 +120,30 @@ module.exports.handler = async function(event, context) {
   if (!response.statusCode) {
     response.statusCode = 200;
     response.body = JSON.stringify(bodyToReturn);
-    response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com'};
-
   }
 
   return response;
 };
 
-let ddbKey = function(keyName, keyValue, keyType) {
+/* let ddbKey = function(keyName, keyValue, keyType) {
   const keyObject = {};
   keyObject.keyName = keyName;
   keyObject.keyValue = keyValue;
   keyObject.keyType = keyType;
   return keyObject;
 };
+ */
 
-let extractValue = function(object, property, type) {
+let ddbKey = (partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue) => {
+  const key = {};
+  key[partitionKeyName] = partitionKeyValue;
+  if (sortKeyName) {
+    key[sortKeyName] = sortKeyValue;
+  }
+  return key;
+}
+
+/* let extractValue = function(object, property, type) {
   let value = "";
 
   if (object.hasOwnProperty(property)) {
@@ -134,9 +151,9 @@ let extractValue = function(object, property, type) {
   }
 
   return value;
-};
+}; */
 
-let privatizeIndividual = individualItem => {
+/* let privatizeIndividual = individualItem => {
   console.log("individual item " + JSON.stringify(individualItem));
   let returnedItem = {};
   Object.assign(returnedItem, individualItem);
@@ -157,9 +174,32 @@ let privatizeIndividual = individualItem => {
     }
   }
   return returnedItem;
+}; */
+
+let privatizeIndividual = individualItem => {
+  console.log("individual item " + JSON.stringify(individualItem));
+  let returnedItem = {};
+  Object.assign(returnedItem, individualItem);
+
+  let birthdate = individualItem.BIRTDATE;
+  if (completeDateRegex.test(birthdate)) {
+    const birthdateRegexMatches = birthdate.match(completeDateRegex);
+    console.log("birth year = " + birthdateRegexMatches[5]);
+    let deathdate = individualItem.DEATDATE;
+    if (
+      privatizeStartYear - 1 < Number(birthdateRegexMatches[5]) &&
+      (deathdate == "" || !completeDateRegex.test(deathdate))
+    ) {
+      returnedItem.BIRTDATE = "Private";
+      if (individualItem.BIRTPLAC) {
+        returnedItem.BIRTPLAC.S = "Private";
+      }
+    }
+  }
+  return returnedItem;
 };
 
-let extractParentInformation = function(parentData) {
+/* let extractParentInformation = function(parentData) {
   const parent = {};
   parent.surname = extractValue(parentData, "SURN", "S");
   parent.givenName = extractValue(parentData, "GIVEN", "S");
@@ -169,16 +209,44 @@ let extractParentInformation = function(parentData) {
   parent.birthloc = extractValue(parentData, "BIRTPLAC", "S");
   parent.deathdate = extractValue(parentData, "DEATDATE", "S");
   parent.deathloc = extractValue(parentData, "DEATPLAC", "S");
+  parent.familyOfOrigin = extractValue(parentData, "FAMC", "S");
+  return parent;
+}; */
+
+let extractParentInformation = function(parentData) {
+  const parent = {};
+  parent.surname = parentData.SURN;
+  parent.givenName = parentData.GIVEN;
+  parent.suffix = parentData.SUFF;
+  parent.gender = parentData.SEX;
+  parent.birthdate = parentData.BIRTDATE;
+  parent.birthloc = parentData.BIRTPLAC;
+  parent.deathdate = parentData.DEATDATE;
+  parent.deathloc = parentData.DEATPLAC;
+  parent.familyOfOrigin = parentData.FAMC;
   return parent;
 };
 
-let extractNaturalFromChildren = function(childrenTableItems, childId) {
+/* let extractNaturalFromChildren = function(childrenTableItems, childId) {
   let natural = {};
 
   for (let i = 0; i < childrenTableItems.length; i++) {
     if (childId === extractValue(childrenTableItems[i], "CHILDID", "S")) {
       natural.father = extractValue(childrenTableItems[i], "_FREL", "S");
       natural.mother = extractValue(childrenTableItems[i], "_MREL", "S");
+    }
+  }
+
+  return natural;
+}; */
+
+let extractNaturalFromChildren = function(childrenTableItems, childId) {
+  let natural = {};
+
+  for (let i = 0; i < childrenTableItems.length; i++) {
+    if (childId === childrenTableItems[i].CHILDID) {
+      natural.father = childrenTableItems[i]._FREL;
+      natural.mother = childrenTableItems[i]._MREL;
     }
   }
 
@@ -195,7 +263,7 @@ let getMinimumInArray = function(array) {
   }
 }
 
-let getItem = function(tableName, projectExpression, key, sortKey) {
+/* let getItem = function(tableName, projectExpression, key, sortKey) {
   const request = {
     TableName: tableName,
     ConsistentRead: false,
@@ -220,9 +288,31 @@ let getItem = function(tableName, projectExpression, key, sortKey) {
       }
     });
   });
+
+
+}; */
+
+
+let getItem = (tableName, projectExpression, ddbKey) => {
+  return new Promise((resolve, reject) => {
+    docClient.get({
+      TableName: tableName,
+      Key: ddbKey,
+      ProjectionExpression: projectExpression,
+      ConsistentRead: false
+    }, 
+    (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(`getItem returned data`);
+        resolve(data);
+      };
+    });
+  });
 };
 
-let queryByGsi = function(
+/* let queryByGsi = function(
   tableName,
   gsiIndexName,
   keyExpression,
@@ -238,6 +328,31 @@ let queryByGsi = function(
 
   return new Promise(function(resolve, reject) {
     ddb.query(request, function(err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(`query returned data`);
+        resolve(data);
+      }
+    });
+  });
+}; */
+
+let queryByGsi = (
+  tableName,
+  gsiIndexName,
+  keyExpression,
+  expressionAttributeValues
+) => {
+  
+
+  return new Promise(function(resolve, reject) {
+    docClient.query({
+      TableName: tableName,
+      IndexName: gsiIndexName,
+      KeyConditionExpression: keyExpression,
+      ExpressionAttributeValues: expressionAttributeValues
+    }, (err, data) => {
       if (err) {
         reject(err);
       } else {
