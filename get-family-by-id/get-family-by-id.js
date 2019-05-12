@@ -15,7 +15,7 @@ module.exports.handler = async function(event, context) {
   const bodyToReturn = { parents: [], children: [] };
   const familyId = event.pathParameters.id;
   const response = {};
-  response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com, http://localhost:8080'};
+  response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com', 'http://localhost:8080'};
 
   try {
     const familyData = await getItem(
