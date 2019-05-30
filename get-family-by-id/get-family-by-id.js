@@ -96,17 +96,10 @@ module.exports.handler = async function(event, context) {
         const fams = childData[k].FAMS;
         let familyIdToDisplay = null;
         if (fams) {
-          console.log("fams " + JSON.stringify(fams));
           familyIdToDisplay = getMinimumInArray(fams.values);
-          console.log("familyIdToDisplay " + familyIdToDisplay);
         }
         bodyToReturn.children.push({
           childId: childId,
-/*           surname: `${extractValue(childData[k], "SURN", "S")}`,
-          givenName: `${extractValue(childData[k], "GIVEN", "S")}`,
-          suffix: `${extractValue(childData[k], "SUFF", "S")}`,
-          birthdate: extractValue(childData[k], "BIRTDATE", "S"),
-          sex: extractValue(childData[k], "SEX", "S"), */
           surname: `${childData[k].SURN}`,
           givenName: `${childData[k].GIVEN}`,
           suffix: `${childData[k].SUFF}`,
@@ -131,15 +124,6 @@ module.exports.handler = async function(event, context) {
   return response;
 };
 
-/* let ddbKey = function(keyName, keyValue, keyType) {
-  const keyObject = {};
-  keyObject.keyName = keyName;
-  keyObject.keyValue = keyValue;
-  keyObject.keyType = keyType;
-  return keyObject;
-};
- */
-
 let ddbKey = (partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue) => {
   const key = {};
   key[partitionKeyName] = partitionKeyValue;
@@ -149,39 +133,6 @@ let ddbKey = (partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue) =>
   return key;
 }
 
-/* let extractValue = function(object, property, type) {
-  let value = "";
-
-  if (object.hasOwnProperty(property)) {
-    value = object[property][type];
-  }
-
-  return value;
-}; */
-
-/* let privatizeIndividual = individualItem => {
-  console.log("individual item " + JSON.stringify(individualItem));
-  let returnedItem = {};
-  Object.assign(returnedItem, individualItem);
-
-  let birthdate = extractValue(individualItem, "BIRTDATE", "S");
-  if (completeDateRegex.test(birthdate)) {
-    const birthdateRegexMatches = birthdate.match(completeDateRegex);
-    console.log("birth year = " + birthdateRegexMatches[5]);
-    let deathdate = extractValue(individualItem, "DEATDATE", "S");
-    if (
-      privatizeStartYear - 1 < Number(birthdateRegexMatches[5]) &&
-      (deathdate == "" || !completeDateRegex.test(deathdate))
-    ) {
-      returnedItem.BIRTDATE.S = "Private";
-      if (individualItem.BIRTPLAC) {
-        returnedItem.BIRTPLAC.S = "Private";
-      }
-    }
-  }
-  return returnedItem;
-}; */
-
 let privatizeIndividual = individualItem => {
   let returnedItem = {};
   Object.assign(returnedItem, individualItem);
@@ -189,7 +140,7 @@ let privatizeIndividual = individualItem => {
   let birthdate = individualItem.BIRTDATE;
   if (completeDateRegex.test(birthdate)) {
     const birthdateRegexMatches = birthdate.match(completeDateRegex);
-    console.log("birth year = " + birthdateRegexMatches[5]);
+    //console.log("birth year = " + birthdateRegexMatches[5]);
     let deathdate = individualItem.DEATDATE;
     if (
       privatizeStartYear - 1 < Number(birthdateRegexMatches[5]) &&
@@ -204,20 +155,6 @@ let privatizeIndividual = individualItem => {
   return returnedItem;
 };
 
-/* let extractParentInformation = function(parentData) {
-  const parent = {};
-  parent.surname = extractValue(parentData, "SURN", "S");
-  parent.givenName = extractValue(parentData, "GIVEN", "S");
-  parent.suffix = extractValue(parentData, "SUFF", "S");
-  parent.gender = extractValue(parentData, "SEX", "S");
-  parent.birthdate = extractValue(parentData, "BIRTDATE", "S");
-  parent.birthloc = extractValue(parentData, "BIRTPLAC", "S");
-  parent.deathdate = extractValue(parentData, "DEATDATE", "S");
-  parent.deathloc = extractValue(parentData, "DEATPLAC", "S");
-  parent.familyOfOrigin = extractValue(parentData, "FAMC", "S");
-  return parent;
-}; */
-
 let extractParentInformation = function(parentData) {
   const parent = {};
   parent.surname = parentData.SURN;
@@ -231,19 +168,6 @@ let extractParentInformation = function(parentData) {
   parent.familyOfOrigin = parentData.FAMC;
   return parent;
 };
-
-/* let extractNaturalFromChildren = function(childrenTableItems, childId) {
-  let natural = {};
-
-  for (let i = 0; i < childrenTableItems.length; i++) {
-    if (childId === extractValue(childrenTableItems[i], "CHILDID", "S")) {
-      natural.father = extractValue(childrenTableItems[i], "_FREL", "S");
-      natural.mother = extractValue(childrenTableItems[i], "_MREL", "S");
-    }
-  }
-
-  return natural;
-}; */
 
 let extractNaturalFromChildren = function(childrenTableItems, childId) {
   let natural = {};
@@ -268,36 +192,6 @@ let getMinimumInArray = function(array) {
   }
 }
 
-/* let getItem = function(tableName, projectExpression, key, sortKey) {
-  const request = {
-    TableName: tableName,
-    ConsistentRead: false,
-    ProjectionExpression: projectExpression,
-    Key: {}
-  };
-
-  request.Key[key.keyName] = {};
-  request.Key[key.keyName][key.keyType] = key.keyValue;
-  if (sortKey) {
-    request.Key[sortKey.keyName] = {};
-    request.Key[sortKey.keyName][sortKey.keyType] = sortKey.keyValue;
-  }
-
-  return new Promise(function(resolve, reject) {
-    ddb.getItem(request, function(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`getItem returned data`);
-        resolve(data);
-      }
-    });
-  });
-
-
-}; */
-
-
 let getItem = (tableName, projectExpression, ddbKey) => {
   return new Promise((resolve, reject) => {
     docClient.get({
@@ -316,32 +210,6 @@ let getItem = (tableName, projectExpression, ddbKey) => {
     });
   });
 };
-
-/* let queryByGsi = function(
-  tableName,
-  gsiIndexName,
-  keyExpression,
-  expressionAttributeValues,
-  projectionExpression
-) {
-  const request = {
-    TableName: tableName,
-    IndexName: gsiIndexName,
-    KeyConditionExpression: keyExpression,
-    ExpressionAttributeValues: expressionAttributeValues
-  };
-
-  return new Promise(function(resolve, reject) {
-    ddb.query(request, function(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`query returned data`);
-        resolve(data);
-      }
-    });
-  });
-}; */
 
 let queryByGsi = (
   tableName,
