@@ -19,7 +19,7 @@ module.exports.handler = async function(event, context) {
         "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC, NOTE",
         ddbKey("INDVID", inidividualId)
     );
-    const privateIndividual = privatizeIndividual(individual.Item);
+    const privateIndividual = extractIndividualInformation(privatizeIndividual(individual.Item));
     Object.assign(bodyToReturn, privateIndividual);
     console.log(`inidividual ${JSON.stringify(individual)}`);
     const noteId = individual.Item.NOTE;
@@ -51,7 +51,20 @@ module.exports.handler = async function(event, context) {
 
   return response;
     
-};  
+};
+
+let extractIndividualInformation = function(individualData) {
+  const inidividual = {};
+  parent.id = individualData.INDVID;
+  parent.givenName = individualData.GIVEN;
+  parent.surname = individualData.SURN;
+  parent.gender = individualData.SEX;
+  parent.birthdate = individualData.BIRTDATE;
+  parent.birthLocation = individualData.BIRTPLAC;
+  parent.deathdate = individualData.DEATDATE;
+  parent.deathLocation = individualData.DEATPLAC;
+  return inidividual;
+};
 
 let privatizeIndividual = individualItem => {
   console.log("in privatizeIndividual");
