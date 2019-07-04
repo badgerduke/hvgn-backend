@@ -55,14 +55,14 @@ module.exports.handler = async function(event, context) {
 
 let extractIndividualInformation = function(individualData) {
   const inidividual = {};
-  parent.id = individualData.INDVID;
-  parent.givenName = individualData.GIVEN;
-  parent.surname = individualData.SURN;
-  parent.gender = individualData.SEX;
-  parent.birthdate = individualData.BIRTDATE;
-  parent.birthLocation = individualData.BIRTPLAC;
-  parent.deathdate = individualData.DEATDATE;
-  parent.deathLocation = individualData.DEATPLAC;
+  inidividual.id = individualData.INDVID;
+  inidividual.givenName = individualData.GIVEN;
+  inidividual.surname = individualData.SURN;
+  inidividual.gender = individualData.SEX;
+  inidividual.birthdate = individualData.BIRTDATE;
+  inidividual.birthLocation = individualData.BIRTPLAC;
+  inidividual.deathdate = individualData.DEATDATE;
+  inidividual.deathLocation = individualData.DEATPLAC;
   return inidividual;
 };
 
@@ -83,7 +83,7 @@ let privatizeIndividual = individualItem => {
     ) {
       returnedItem.BIRTDATE = "Private";
       if (individualItem.BIRTPLAC) {
-        returnedItem.BIRTPLAC.S = "Private";
+        returnedItem.BIRTPLAC = "Private";
       }
     }
   }
