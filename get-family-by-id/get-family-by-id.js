@@ -157,6 +157,7 @@ let privatizeIndividual = individualItem => {
 
 let extractParentInformation = function(parentData) {
   const parent = {};
+  parent.id = parentData.INDVID;
   parent.surname = parentData.SURN;
   parent.givenName = parentData.GIVEN;
   parent.suffix = parentData.SUFF;
