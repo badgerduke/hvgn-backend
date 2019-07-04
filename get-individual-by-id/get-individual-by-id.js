@@ -12,6 +12,7 @@ module.exports.handler = async function(event, context) {
   const bodyToReturn = { };
   const inidividualId = event.pathParameters.id;
   const response = {};
+  response.headers = {'Access-Control-Allow-Origin': '*'};
 
   try {
     const individual = await getItem(
