@@ -75,7 +75,7 @@ let privatizeIndividual = individualItem => {
   let birthdate = individualItem.BIRTDATE;
   if (completeDateRegex.test(birthdate)) {
     const birthdateRegexMatches = birthdate.match(completeDateRegex);
-    //console.log("birth year = " + birthdateRegexMatches[5]);
+    console.log("birth year = " + birthdateRegexMatches[5]);
     let deathdate = individualItem.DEATDATE;
     if (
       privatizeStartYear - 1 < Number(birthdateRegexMatches[5]) &&
@@ -86,6 +86,7 @@ let privatizeIndividual = individualItem => {
         returnedItem.BIRTPLAC = "Private";
       }
     }
+    console.log("returnedItem = " + JSON.stringify(returnedItem));
   }
   return returnedItem;
 };
