@@ -16,7 +16,7 @@ module.exports.handler = async function(event, context) {
   const familyId = event.pathParameters.id;
   const response = {};
   //response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com'};
-  response.headers = {'Access-Control-Allow-Origin': '*'};
+  response.headers = { "Access-Control-Allow-Origin": "*" };
 
   try {
     const familyData = await getItem(
@@ -31,13 +31,21 @@ module.exports.handler = async function(event, context) {
       response.body = `Family with familyId of '${familyId}' was not found`;
     } else {
       bodyToReturn.familyId = familyId;
-     // const father = extractValue(familyData.Item, "HUSB", "S");
-     // const mother = extractValue(familyData.Item, "WIFE", "S");
+      // const father = extractValue(familyData.Item, "HUSB", "S");
+      // const mother = extractValue(familyData.Item, "WIFE", "S");
       const father = familyData.Item.HUSB;
       const mother = familyData.Item.WIFE;
       let fatherPromise;
       let motherPromise;
       let childrenPromise;
+      let fatherOtherFamiliesPromise;
+      let motherOtherFamiliesPromise;
+      let fatherData;
+      let motherData;
+      let fatherOtherFamiliesData;
+      let motherOtherFamiliesData;
+      let fatherOtherFamiliesProimise;
+      let motherOtherFamiliesProimise;
 
       if (father) {
         fatherPromise = getItem(
@@ -53,65 +61,81 @@ module.exports.handler = async function(event, context) {
           ddbKey("INDVID", mother)
         );
       }
-      childrenPromise = queryByGsi(
-        "Children",
-        "familyIdGSI",
-        "FAMID = :a",
-        { ":a": familyId },
-        /* "_FREL, _MREL, CHILDID" */
-      );
+      childrenPromise = queryByGsi("Children", "familyIdGSI", "FAMID = :a", {
+        ":a": familyId
+      });
 
-      const fatherData = await fatherPromise;
-      const motherData = await motherPromise;
-      const childrenData = await childrenPromise;
-
-      bodyToReturn.parents.push(
-        extractParentInformation(privatizeIndividual(fatherData.Item))
-      );
-      bodyToReturn.parents.push(
-        extractParentInformation(privatizeIndividual(motherData.Item))
-      );
-
-      const childDataPromises = [];
-      const childData = [];
-
-      for (let i = 0; i < childrenData.Items.length; i++) {
-        childDataPromises.push(
-          getItem(
-            "Individual",
-            "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
-            ddbKey("INDVID", childrenData.Items[i].CHILDID)
-          )
+      if (father) {
+        fatherOtherFamiliesPromise = queryByGsi(
+          "Family",
+          "fatherIdGSI",
+          "HUSB = :a",
+          { ":a": father }
         );
       }
 
-      for (let j = 0; j < childDataPromises.length; j++) {
-        singleChildData = await childDataPromises[j];
-        childData.push(privatizeIndividual(singleChildData.Item));
+      if (mother) {
+        motherOtherFamiliesPromise = queryByGsi(
+          "Family",
+          "motherIdGSI",
+          "WIFE = :a",
+          { ":a": mother }
+        );
       }
 
-      for (let k = 0; k < childData.length; k++) {
-        const childId = childData[k].INDVID;
-        const natural = extractNaturalFromChildren(childrenData.Items, childId);
-        const fams = childData[k].FAMS;
-        let familyIdToDisplay = null;
-        if (fams) {
-          familyIdToDisplay = getMinimumInArray(fams.values);
-        }
-        bodyToReturn.children.push({
-          childId: childId,
-          surname: `${childData[k].SURN}`,
-          givenName: `${childData[k].GIVEN}`,
-          suffix: `${childData[k].SUFF}`,
-          birthdate: childData[k].BIRTDATE,
-          sex: childData[k].SEX,
-          naturalOfFather: natural.father,
-          naturalOfMother: natural.mother,
-          familyIdToDisplay: familyIdToDisplay
-        });
+      if (father) {
+        fatherData = await fatherPromise;
+      }
+      if (mother) {
+        motherData = await motherPromise;
+      }
+      const childrenData = await childrenPromise;
+
+      if (father) {
+        fatherOtherFamiliesData = await fatherOtherFamiliesPromise;
+      }
+      if (mother) {
+        motherOtherFamiliesData = await motherOtherFamiliesPromise;
+      }
+
+      if (father) {
+        fatherOtherFamiliesProimise = constructParentOtherFamiliesData(
+          fatherOtherFamiliesData,
+          "WIFE",
+          familyId
+        );
+      }
+      if (mother) {
+        motherOtherFamiliesProimise = constructParentOtherFamiliesData(
+          motherOtherFamiliesData,
+          "HUSB",
+          familyId
+        );
+      }
+      const childrenDataPromise = constructChildrenData(childrenData);
+
+      if (father) {
+        fatherData.Item.otherFamilies = await fatherOtherFamiliesProimise;
+      }
+      if (mother) {
+        motherData.Item.otherFamilies = await motherOtherFamiliesProimise;
+      }
+
+      bodyToReturn.children = await childrenDataPromise;
+
+      if (father) {
+        bodyToReturn.parents.push(
+          extractParentInformation(privatizeIndividual(fatherData.Item))
+        );
+      }
+      if (mother) {
+        bodyToReturn.parents.push(
+          extractParentInformation(privatizeIndividual(motherData.Item))
+        );
       }
     }
   } catch (err) {
+    console.log(err);
     response.statusCode = 500;
     response.body = JSON.stringify(err);
   }
@@ -121,17 +145,23 @@ module.exports.handler = async function(event, context) {
     response.body = JSON.stringify(bodyToReturn);
   }
 
+  console.log(JSON.stringify(response));
   return response;
 };
 
-let ddbKey = (partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue) => {
+let ddbKey = (
+  partitionKeyName,
+  partitionKeyValue,
+  sortKeyName,
+  sortKeyValue
+) => {
   const key = {};
   key[partitionKeyName] = partitionKeyValue;
   if (sortKeyName) {
     key[sortKeyName] = sortKeyValue;
   }
   return key;
-}
+};
 
 let privatizeIndividual = individualItem => {
   let returnedItem = {};
@@ -167,6 +197,7 @@ let extractParentInformation = function(parentData) {
   parent.deathdate = parentData.DEATDATE;
   parent.deathloc = parentData.DEATPLAC;
   parent.familyOfOrigin = parentData.FAMC;
+  parent.otherFamilies = parentData.otherFamilies;
   return parent;
 };
 
@@ -187,28 +218,123 @@ let getMinimumInArray = function(array) {
   if (array && array.length) {
     array.sort((a, b) => a - b);
     return JSON.stringify(Number(array[0]));
-  }
-  else {
+  } else {
     return null;
   }
-}
+};
+
+let constructParentOtherFamiliesData = (
+  parentOtherFamiliesData,
+  otherTableAttribute,
+  currentFamilyId
+) => {
+  return new Promise(async (resolve, reject) => {
+    const parentOtherSpousesPromises = [];
+    const parentOtherFamilies = [];
+    let parentOtherSpouseData = [];
+
+    try {
+      for (let i = 0; i < parentOtherFamiliesData.Items.length; i++) {
+        parentOtherSpousesPromises.push(
+          getItem(
+            "Individual",
+            "INDVID, GIVEN, SURN, SUFF",
+            ddbKey(
+              "INDVID",
+              parentOtherFamiliesData.Items[i][otherTableAttribute]
+            )
+          )
+        );
+      }
+
+      for (let j = 0; j < parentOtherSpousesPromises.length; j++) {
+        parentOtherSpouseData = await parentOtherSpousesPromises[j];
+        const familyId = parentOtherFamiliesData.Items[j].FAMID;
+        if (familyId !== currentFamilyId) {
+          parentOtherFamilies.push({
+            familyId: familyId,
+            spouseName: `${parentOtherSpouseData.Item.GIVEN} ${parentOtherSpouseData.Item.SURN}`
+          });
+        }
+      }
+    } catch (err) {
+      reject(err);
+    }
+    resolve(parentOtherFamilies);
+  });
+};
+
+let constructChildrenData = childrenData => {
+  return new Promise(async (resolve, reject) => {
+    const childDataPromises = [];
+    const childData = [];
+    const children = [];
+
+    try {
+      for (let i = 0; i < childrenData.Items.length; i++) {
+        childDataPromises.push(
+          getItem(
+            "Individual",
+            "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
+            ddbKey("INDVID", childrenData.Items[i].CHILDID)
+          )
+        );
+      }
+
+      for (let j = 0; j < childDataPromises.length; j++) {
+        singleChildData = await childDataPromises[j];
+        childData.push(privatizeIndividual(singleChildData.Item));
+      }
+
+      for (let k = 0; k < childData.length; k++) {
+        const childId = childData[k].INDVID;
+        const natural = extractNaturalFromChildren(childrenData.Items, childId);
+        const fams = childData[k].FAMS;
+        let familyIdToDisplay = null;
+        if (fams) {
+          familyIdToDisplay = getMinimumInArray(fams.values);
+        }
+        children.push({
+          childId: childId,
+          surname: `${childData[k].SURN}`,
+          givenName: `${childData[k].GIVEN}`,
+          suffix: `${childData[k].SUFF}`,
+          birthdate: childData[k].BIRTDATE,
+          sex: childData[k].SEX,
+          naturalOfFather: natural.father,
+          naturalOfMother: natural.mother,
+          familyIdToDisplay: familyIdToDisplay
+        });
+      }
+    } catch (err) {
+      reject(err);
+    }
+    resolve(children);
+  });
+};
 
 let getItem = (tableName, projectExpression, ddbKey) => {
   return new Promise((resolve, reject) => {
-    docClient.get({
-      TableName: tableName,
-      Key: ddbKey,
-      ProjectionExpression: projectExpression,
-      ConsistentRead: false
-    }, 
-    (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`getItem returned data`);
-        resolve(data);
-      };
-    });
+    try {
+      docClient.get(
+        {
+          TableName: tableName,
+          Key: ddbKey,
+          ProjectionExpression: projectExpression,
+          ConsistentRead: false
+        },
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`getItem returned data`);
+            resolve(data);
+          }
+        }
+      );
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
@@ -218,21 +344,22 @@ let queryByGsi = (
   keyExpression,
   expressionAttributeValues
 ) => {
-  
-
   return new Promise(function(resolve, reject) {
-    docClient.query({
-      TableName: tableName,
-      IndexName: gsiIndexName,
-      KeyConditionExpression: keyExpression,
-      ExpressionAttributeValues: expressionAttributeValues
-    }, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`query returned data`);
-        resolve(data);
+    docClient.query(
+      {
+        TableName: tableName,
+        IndexName: gsiIndexName,
+        KeyConditionExpression: keyExpression,
+        ExpressionAttributeValues: expressionAttributeValues
+      },
+      (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log(`query returned data`);
+          resolve(data);
+        }
       }
-    });
+    );
   });
 };
