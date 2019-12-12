@@ -1,32 +1,18 @@
 version: 0.2
 phases:
   install:
+    runtime-versions:
+      nodejs: 10
     commands:
-      - sudo add-apt-repository ppa:deadsnakes/ppa
+      - echo running apt-get update ...
       - sudo apt-get update
-      - sudo apt-get -y install python3.6
-      - sudo apt-get -y install python3-pip
-      - pip3 --version
-      - pip3 install -U setuptools
-      - export LC_ALL=C.UTF-8 
-      - export LANG=C.UTF-8 
-      - echo Installing AWS SAM CLI at `date`
-      - pip3 install --user aws-sam-cli
-      - USER_BASE_PATH=$(python -m site --user-base)
-      - export PATH=$PATH:$USER_BASE_PATH/bin
-      - sam --version
-      - echo Finshed intalling AWS SAM CLI at `date`
+      - echo running npm install ...
+      - npm install
   pre_build:
     commands:
       - echo HVGN backend deploy beginning at `date`
   build:
     commands:
-      - echo SAM packaging started at `date`
-      - sam package --template-file template.yaml --output-template-file sam.yaml --s3-bucket hvgn-cf
-      - echo SAM packaging finished at `date`
-      - echo SAM deploy started at `date`
-      - sam deploy --template-file sam.yaml --stack-name hvgn --capabilities CAPABILITY_IAM
-      - echo SAM deploy completed at `date` 
   post_build:
     commands:
       - echo HVGN backend succssfully completed at `date`
