@@ -10,17 +10,21 @@ const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
 const privatizeStartYear = process.env.PRIVATE_YEAR;
+const familyTableName = process.env.FAMILY_TABLE;
+const individualTableName = process.env.INDIVIDUAL_TABLE;
+const childrenTableName = process.env.CHILDREN_TABLE;
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
 
 module.exports.handler = async function(event, context) {
   const bodyToReturn = { parents: [], children: [] };
   const familyId = event.pathParameters.id;
   const response = {};
-  //response.headers = {'Access-Control-Allow-Origin': 'http://hvgn.s3-website-us-east-1.amazonaws.com'};
-  response.headers = { "Access-Control-Allow-Origin": "*" };
+  console.log("Allowed origin should be * = " + allowedOrigin);
+  response.headers = { "Access-Control-Allow-Origin": allowedOrigin };
 
   try {
     const familyData = await getItem(
-      "Family",
+      familyTableName,
       "FAMID, HUSB, WIFE",
       ddbKey("FAMID", familyId)
     );
@@ -31,8 +35,6 @@ module.exports.handler = async function(event, context) {
       response.body = `Family with familyId of '${familyId}' was not found`;
     } else {
       bodyToReturn.familyId = familyId;
-      // const father = extractValue(familyData.Item, "HUSB", "S");
-      // const mother = extractValue(familyData.Item, "WIFE", "S");
       const father = familyData.Item.HUSB;
       const mother = familyData.Item.WIFE;
       let fatherPromise;
@@ -49,25 +51,25 @@ module.exports.handler = async function(event, context) {
 
       if (father) {
         fatherPromise = getItem(
-          "Individual",
+          individualTableName,
           "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
           ddbKey("INDVID", father)
         );
       }
       if (mother) {
         motherPromise = getItem(
-          "Individual",
+          individualTableName,
           "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
           ddbKey("INDVID", mother)
         );
       }
-      childrenPromise = queryByGsi("Children", "familyIdGSI", "FAMID = :a", {
+      childrenPromise = queryByGsi(childrenTableName, "familyIdGSI", "FAMID = :a", {
         ":a": familyId
       });
 
       if (father) {
         fatherOtherFamiliesPromise = queryByGsi(
-          "Family",
+          familyTableName,
           "fatherIdGSI",
           "HUSB = :a",
           { ":a": father }
@@ -76,7 +78,7 @@ module.exports.handler = async function(event, context) {
 
       if (mother) {
         motherOtherFamiliesPromise = queryByGsi(
-          "Family",
+          familyTableName,
           "motherIdGSI",
           "WIFE = :a",
           { ":a": mother }
@@ -237,7 +239,7 @@ let constructParentOtherFamiliesData = (
       for (let i = 0; i < parentOtherFamiliesData.Items.length; i++) {
         parentOtherSpousesPromises.push(
           getItem(
-            "Individual",
+            individualTableName,
             "INDVID, GIVEN, SURN, SUFF",
             ddbKey(
               "INDVID",
@@ -274,7 +276,7 @@ let constructChildrenData = childrenData => {
       for (let i = 0; i < childrenData.Items.length; i++) {
         childDataPromises.push(
           getItem(
-            "Individual",
+            individualTableName,
             "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
             ddbKey("INDVID", childrenData.Items[i].CHILDID)
           )

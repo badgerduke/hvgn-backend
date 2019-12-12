@@ -1,0 +1,104 @@
+service: hvgn-backend
+
+plugins:
+  - serverless-offline
+  - serverless-pseudo-parameters
+  - serverless-domain-manager
+
+custom:
+  allowedHeaders:
+    - Accept
+    - Content-Type
+    - Content-Length
+    - X-Api-Key
+  allowedOrigin:
+    dev: "'*'"
+    prod: "'https://hamacher.ws'"
+    other: "'https://hamacher.ws'"
+  allowedMethods:
+    - OPTIONS
+    - GET
+  customDomain: 
+    domainName: ${self:custom.apiDomain.${opt:stage, self:provider.stage}}
+    #basePath: prod
+    stage: ${opt:stage, self:provider.stage}
+    certificateName: hvgn.net
+    createRoute53Record: true
+  apiDomain:
+    dev: dev.hvgn.net
+    prod: api.hvgn.net
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: us-east-1
+  stage: dev
+  memorySize: 128
+  timeout: 3
+  apiKeys:
+    - prod:
+      - value: h0Gk2JQ8jOn38m5zPy1S0K4m
+        description: prod api key
+  usagePlan:
+    - prod:
+        quota:
+          limit: 1000
+          #offset: 2
+          period: MONTH
+        #throttle:
+          #burstLimit: 200
+          #rateLimit: 100
+  environment:
+    INDIVIDUAL_TABLE: Individual-${opt:stage, self:provider.stage}
+    FAMILY_TABLE: Family-${opt:stage, self:provider.stage}
+    CHILDREN_TABLE: Children-${opt:stage, self:provider.stage}
+    NOTE_TABLE: Note-${opt:stage, self:provider.stage}
+    PRIVATE_YEAR: 1920
+    ALLOWED_ORIGIN: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
+
+functions:
+  getFamilyById:
+    handler: get-family-by-id/get-family-by-id.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}" 
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
+    events:
+      - http:
+          path: /family/{id}
+          method: get
+          private: true
+          cors:
+            origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
+            headers: ${self:custom.allowedHeaders}
+            methods: ${self:custom.allowedMethods}
+  getIndividualById:
+    handler: get-individual-by-id/get-individual-by-id.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.NOTE_TABLE}"
+    events:
+      - http:
+          path: /individual/{id}
+          method: get
+          private: true
+          cors:
+            origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
+            headers: ${self:custom.allowedHeaders}
+            methods: ${self:custom.allowedMethods}
