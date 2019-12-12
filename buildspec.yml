@@ -5,9 +5,10 @@ phases:
       nodejs: 10
     commands:
       - echo running apt-get update ...
-      - sudo apt-get update
+      - apt-get update
       - echo running npm install ...
       - npm install
+    run-as: root
   pre_build:
     commands:
       - echo HVGN backend deploy beginning at `date`
