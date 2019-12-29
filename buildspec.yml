@@ -12,8 +12,23 @@ phases:
   pre_build:
     commands:
       - echo HVGN backend deploy beginning at `date`
+    run-as: root
   build:
     commands:
+      - mkdir artifacts
+      - mkdir artifacts/dev
+      - mkdir artifacts/prod
+      - echo packaging dev artifacts
+      - sls package --package artifacts/dev -s dev -v 
+      - echo packaging prod artifacts
+      - sls package --package artifacts/prod -s prod -v
+    run-as: root
   post_build:
     commands:
       - echo HVGN backend succssfully completed at `date`
+    run-as: root
+artifacts:
+  files:
+    - artifacts/**/*
+    - serverless.yml
+    - deploy.sh
