@@ -8,6 +8,8 @@ phases:
       - apt-get update
       - echo running npm install ...
       - npm install
+      - echo installing serveless framework
+      - npm install -g serverless
     run-as: root
   pre_build:
     commands:
