@@ -25,4 +25,3 @@ phases:
     commands:
       - echo HVGN backend deploy dev succssfully completed at `date`
     run-as: root
-artifacts:
