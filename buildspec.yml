@@ -33,4 +33,4 @@ artifacts:
   files:
     - artifacts/**/*
     - serverless.yml
-    - deploy.sh
+    - deploy-dev/**
