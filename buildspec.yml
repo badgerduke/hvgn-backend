@@ -34,3 +34,4 @@ artifacts:
     - artifacts/**/*
     - serverless.yml
     - deploy-dev/**
+    - package.json
