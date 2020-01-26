@@ -11,7 +11,7 @@ phases:
       - echo installing serverless framework
       - npm install -g serverless
       - echo installing serverless plugins
-      - npm install serverless-offline serverless-pseudo-parameters serverless-domain-manager 
+      - npm install -g serverless-offline serverless-pseudo-parameters serverless-domain-manager 
     run-as: root
   pre_build:
     commands:
@@ -19,6 +19,8 @@ phases:
     run-as: root
   build:
     commands:
+      - pwd
+      - ls $CODEBUILD_SRC_DIR/artifacts/$env
       - serverless deploy --stage $env --package $CODEBUILD_SRC_DIR/artifacts/$env -v
     run-as: root
   post_build:
