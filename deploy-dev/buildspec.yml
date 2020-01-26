@@ -9,7 +9,7 @@ phases:
       - echo running npm install ...
       - npm install
       - echo installing serverless framework
-      - npm install -g serverless
+      - npm install -g serverless@1.38.0
       - echo installing serverless plugins
       - npm install serverless-offline serverless-pseudo-parameters serverless-domain-manager 
     run-as: root
