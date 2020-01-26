@@ -19,6 +19,7 @@ phases:
     run-as: root
   build:
     commands:
+      - ls -al
       - pwd
       - ls $CODEBUILD_SRC_DIR/artifacts/$env
       - serverless deploy --stage $env --package $CODEBUILD_SRC_DIR/artifacts/$env -v
