@@ -10,8 +10,6 @@ phases:
       - npm install
       - echo installing serverless framework
       - npm install -g serverless
-      - echo installing serverless plugins
-      - npm install serverless-offline serverless-pseudo-parameters serverless-domain-manager 
     run-as: root
   pre_build:
     commands:
