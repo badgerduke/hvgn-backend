@@ -20,7 +20,7 @@ custom:
     - GET
   customDomain: 
     domainName: ${self:custom.apiDomain.${opt:stage, self:provider.stage}}
-    basePath: 
+    basePath: ''
     stage: ${opt:stage, self:provider.stage}
     certificateName: hvgn.net
     createRoute53Record: true
