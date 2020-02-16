@@ -25,7 +25,7 @@ custom:
     certificateName: hvgn.net
     createRoute53Record: true
   apiDomain:
-    dev: dev.hvgn.net.
+    dev: dev.hvgn.net
     prod: api.hvgn.net
 
 provider:
