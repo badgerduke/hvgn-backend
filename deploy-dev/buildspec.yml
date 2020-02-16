@@ -20,7 +20,7 @@ phases:
     commands:
       - mkdir -p .serverless
       - cp -r $CODEBUILD_SRC_DIR/artifacts/$env/* ./.serverless
-      - serverless create_domain --stage $env
+      - serverless create_domain
       - serverless deploy --stage $env --package .serverless -v
     run-as: root
   post_build:
