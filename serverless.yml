@@ -22,7 +22,7 @@ custom:
     domainName: ${self:custom.apiDomain.${opt:stage, self:provider.stage}}
     basePath: ''
     stage: ${opt:stage, self:provider.stage}
-    certificateName: '*.hvgn.net'
+    certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
   apiDomain:
