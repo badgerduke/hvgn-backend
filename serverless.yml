@@ -60,20 +60,7 @@ provider:
 functions:
   getFamilyById:
     handler: get-family-by-id/get-family-by-id.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:Query
-        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}" 
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
+    role: getFamilyByIdExecutionRole
     events:
       - http:
           path: /family/{id}
@@ -85,15 +72,7 @@ functions:
             methods: ${self:custom.allowedMethods}
   getIndividualById:
     handler: get-individual-by-id/get-individual-by-id.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.NOTE_TABLE}"
+    role: getIndividualByIdExecutionRole
     events:
       - http:
           path: /individual/{id}
@@ -103,3 +82,78 @@ functions:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
             methods: ${self:custom.allowedMethods}
+resources:
+  Resources:
+    getFamilyByIdExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: GetFamilyByIdExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2017-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: GetFamilyByIdExecutionPolicy
+            PolicyDocument:
+              Version: '2017-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:CreateLogGroup
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*"
+                - Effect: Allow
+                  Action: 
+                    - logs:PutLogEvents
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*:*"
+                - Effect: Allow
+                  Action:
+                    - dynamodb:GetItem
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
+                - Effect: Allow
+                  Action:
+                    - dynamodb:GetItem
+                    - dynamodb:Query
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}" 
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Query
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
+    getIndividualByIdExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: GetIndividualByIdExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2017-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: GetIndividualByIdExecutionPolicy
+            PolicyDocument:
+              Version: '2017-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:CreateLogGroup
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*"
+                - Effect: Allow
+                  Action: 
+                    - logs:PutLogEvents
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*:*"
+                - Effect: Allow
+                  Action:
+                    - dynamodb:GetItem
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
+                - Effect: Allow
+                  Action:
+                    - dynamodb:GetItem
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.NOTE_TABLE}"          
