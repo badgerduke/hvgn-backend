@@ -89,7 +89,7 @@ resources:
       Properties:
         RoleName: GetFamilyByIdExecutionRole
         AssumeRolePolicyDocument:
-          Version: '2017-10-17'
+          Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Principal:
@@ -99,7 +99,7 @@ resources:
         Policies:
           - PolicyName: GetFamilyByIdExecutionPolicy
             PolicyDocument:
-              Version: '2017-10-17'
+              Version: '2012-10-17'
               Statement:
                 - Effect: Allow
                   Action:
@@ -128,7 +128,7 @@ resources:
       Properties:
         RoleName: GetIndividualByIdExecutionRole
         AssumeRolePolicyDocument:
-          Version: '2017-10-17'
+          Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Principal:
@@ -138,7 +138,7 @@ resources:
         Policies:
           - PolicyName: GetIndividualByIdExecutionPolicy
             PolicyDocument:
-              Version: '2017-10-17'
+              Version: '2012-10-17'
               Statement:
                 - Effect: Allow
                   Action:
