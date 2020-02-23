@@ -63,14 +63,14 @@ module.exports.handler = async function(event, context) {
           ddbKey("INDVID", mother)
         );
       }
-      childrenPromise = queryByGsi(childrenTableName, "familyIdGSI", "FAMID = :a", {
+      childrenPromise = queryByGsi(childrenTableName, childrenTableName + "-familyIdGSI", "FAMID = :a", {
         ":a": familyId
       });
 
       if (father) {
         fatherOtherFamiliesPromise = queryByGsi(
           familyTableName,
-          "fatherIdGSI",
+          familyTableName + "-fatherIdGSI",
           "HUSB = :a",
           { ":a": father }
         );
@@ -79,7 +79,7 @@ module.exports.handler = async function(event, context) {
       if (mother) {
         motherOtherFamiliesPromise = queryByGsi(
           familyTableName,
-          "motherIdGSI",
+          familyTableName + "-motherIdGSI",
           "WIFE = :a",
           { ":a": mother }
         );
