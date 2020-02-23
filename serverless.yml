@@ -122,7 +122,11 @@ resources:
                 - Effect: Allow
                   Action:
                     - dynamodb:Query
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
+                  Resource: 
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}/index/fatherIdGSI"
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}/index/motherIdGSI"
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}/index/familyIdGSI"
     getIndividualByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
