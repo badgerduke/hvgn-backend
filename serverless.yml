@@ -19,15 +19,12 @@ custom:
     - OPTIONS
     - GET
   customDomain: 
-    domainName: ${self:custom.apiDomain.${opt:stage, self:provider.stage}}
-    basePath: ''
+    domainName: api.hvgn.net
+    basePath: '${opt:stage, self:provider.stage}'
     stage: ${opt:stage, self:provider.stage}
     certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
-  apiDomain:
-    dev: dev.hvgn.net
-    prod: api.hvgn.net
 
 provider:
   name: aws
