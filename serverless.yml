@@ -35,7 +35,7 @@ provider:
   timeout: 3
   apiKeys:
     - prod:
-      - value: ${ssm:api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
+      - value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
         description: prod api key
   usagePlan:
     - prod:
