@@ -34,10 +34,21 @@ provider:
   memorySize: 128
   timeout: 3
   apiKeys:
+    - dev:
+      - value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
+        description: dev api key
     - prod:
       - value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
         description: prod api key
   usagePlan:
+    - dev:
+        quota:
+          limit: 1000
+          #offset: 2
+          period: MONTH
+        #throttle:
+          #burstLimit: 200
+          #rateLimit: 100
     - prod:
         quota:
           limit: 1000
