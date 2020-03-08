@@ -34,31 +34,17 @@ provider:
   memorySize: 128
   timeout: 3
   apiKeys:
-    - dev:
-      - dev-${ssm:/api.hvgn.net/dev/apikey~true}
-      - value: ${ssm:/api.hvgn.net/dev/apikey~true}
-        description: dev api key
-    - prod:
-      - prod-${ssm:/api.hvgn.net/prod/apikey~true}
-      - value: ${ssm:/api.hvgn.net/prod/apikey~true}
-        description: prod api key
+    - name: ${self:service}-${opt:stage, self:provider.stage}
+      value: ${opt:api_key}
+      description: ${opt:stage, self:provider.stage} api key
   usagePlan:
-    - dev:
-        quota:
-          limit: 1000
-          #offset: 2
-          period: MONTH
-        #throttle:
-          #burstLimit: 200
-          #rateLimit: 100
-    - prod:
-        quota:
-          limit: 1000
-          #offset: 2
-          period: MONTH
-        #throttle:
-          #burstLimit: 200
-          #rateLimit: 100
+    quota:
+      limit: 1000
+      #offset: 2
+      period: MONTH
+    #throttle:
+      #burstLimit: 200
+      #rateLimit: 100
   environment:
     INDIVIDUAL_TABLE: Individual-${opt:stage, self:provider.stage}
     FAMILY_TABLE: Family-${opt:stage, self:provider.stage}
