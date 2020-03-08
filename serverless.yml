@@ -95,7 +95,7 @@ resources:
     getFamilyByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: GetFamilyByIdExecutionRole
+        RoleName: GetFamilyByIdExecutionRole-${opt:stage, self:provider.stage}
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -105,7 +105,7 @@ resources:
                   - lambda.amazonaws.com
               Action: sts:AssumeRole
         Policies:
-          - PolicyName: GetFamilyByIdExecutionPolicy
+          - PolicyName: GetFamilyByIdExecutionPolicy-${opt:stage, self:provider.stage}
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -113,11 +113,11 @@ resources:
                   Action:
                     - logs:CreateLogStream
                     - logs:CreateLogGroup
-                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*"
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
                 - Effect: Allow
                   Action: 
                     - logs:PutLogEvents
-                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*:*"
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
                     - dynamodb:GetItem
@@ -138,7 +138,7 @@ resources:
     getIndividualByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: GetIndividualByIdExecutionRole
+        RoleName: GetIndividualByIdExecutionRole-${opt:stage, self:provider.stage}
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -148,7 +148,7 @@ resources:
                   - lambda.amazonaws.com
               Action: sts:AssumeRole
         Policies:
-          - PolicyName: GetIndividualByIdExecutionPolicy
+          - PolicyName: GetIndividualByIdExecutionPolicy-${opt:stage, self:provider.stage}
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -156,11 +156,11 @@ resources:
                   Action:
                     - logs:CreateLogStream
                     - logs:CreateLogGroup
-                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*"
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
                 - Effect: Allow
                   Action: 
                     - logs:PutLogEvents
-                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-dev*:*:*"
+                  Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
                     - dynamodb:GetItem
