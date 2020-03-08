@@ -16,6 +16,7 @@ phases:
       - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
       - export API_KEY=$(aws ssm get-parameter --name "/api.hvgn.net/$env/apikey" --with-decryption | jq -r '.Parameter.Value' )
+      - echo $API_KEY
     run-as: root
   build:
     commands:
