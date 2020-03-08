@@ -35,12 +35,12 @@ provider:
   timeout: 3
   apiKeys:
     - dev:
-      - name: dev-${ssm:/api.hvgn.net/dev/apikey~true}
-        value: ${ssm:/api.hvgn.net/dev/apikey~true}
+      - dev-${ssm:/api.hvgn.net/dev/apikey~true}
+      - value: ${ssm:/api.hvgn.net/dev/apikey~true}
         description: dev api key
     - prod:
-      - name: prod-${ssm:/api.hvgn.net/prod/apikey~true}
-        value: ${ssm:/api.hvgn.net/prod/apikey~true}
+      - prod-${ssm:/api.hvgn.net/prod/apikey~true}
+      - value: ${ssm:/api.hvgn.net/prod/apikey~true}
         description: prod api key
   usagePlan:
     - dev:
