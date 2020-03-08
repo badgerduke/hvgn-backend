@@ -13,7 +13,7 @@ phases:
     run-as: root
   pre_build:
     commands:
-      - echo HVGN backend deploy dev beginning at `date`
+      - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
     run-as: root
   build:
@@ -25,5 +25,5 @@ phases:
     run-as: root
   post_build:
     commands:
-      - echo HVGN backend deploy dev succssfully completed at `date`
+      - echo HVGN backend deploy $env succssfully completed at `date`
     run-as: root
