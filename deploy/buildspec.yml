@@ -15,15 +15,13 @@ phases:
     commands:
       - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
-      - export API_KEY=$(aws ssm get-parameter --name "/api.hvgn.net/$env/apikey" --with-decryption | jq -r '.Parameter.Value' )
-      - echo $API_KEY
     run-as: root
   build:
     commands:
       - mkdir -p .serverless
       - cp -r $CODEBUILD_SRC_DIR/artifacts/$env/* ./.serverless
       - serverless create_domain
-      - serverless deploy --stage $env --package .serverless -v --api_key $API_ENV
+      - serverless deploy --stage $env --package .serverless -v
     run-as: root
   post_build:
     commands:

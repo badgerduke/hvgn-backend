@@ -12,9 +12,9 @@ custom:
     - Content-Length
     - X-Api-Key
   allowedOrigin:
-    dev: "*"
-    prod: "'https://dev.hvgn.net'"
-    other: "'https://hvgn.net'"
+    dev: "https://dev.hvgn.net"
+    prod: "'https://hvgn.net"
+    other: "https://dev.hvgn.net'"
   allowedMethods:
     - OPTIONS
     - GET

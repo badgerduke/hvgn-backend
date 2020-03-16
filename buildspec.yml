@@ -21,11 +21,9 @@ phases:
       - mkdir artifacts/dev
       - mkdir artifacts/prod
       - echo packaging dev artifacts
-      - export DEV_API_KEY=$(aws ssm get-parameter --name "/api.hvgn.net/dev/apikey" --with-decryption | jq -r '.Parameter.Value' )
-      - sls package --package artifacts/dev -s dev -v --api_key $DEV_API_KEY
+      - sls package --package artifacts/dev -s dev -v 
       - echo packaging prod artifacts
-      - export PROD_API_KEY=$(aws ssm get-parameter --name "/api.hvgn.net/prod/apikey" --with-decryption | jq -r '.Parameter.Value' )
-      - sls package --package artifacts/prod -s prod -v --api_key $PROD_API_KEY
+      - sls package --package artifacts/prod -s prod -v
     run-as: root
   post_build:
     commands:
