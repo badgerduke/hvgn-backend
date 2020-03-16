@@ -14,7 +14,7 @@ phases:
   pre_build:
     commands:
       - echo HVGN backend deploy beginning at `date`
-      - API_KEY_TIMESTAMP=$(date +%s | printf '%d')
+      - API_KEY_TIMESTAMP=$(printf "%s" $(date +%s))
       - echo $API_KEY_TIMESTAMP
     run-as: root
   build:

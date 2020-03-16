@@ -15,7 +15,7 @@ phases:
     commands:
       - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
-      - API_KEY_TIMESTAMP=$(date +%s | printf '%d')
+      - API_KEY_TIMESTAMP=$(printf "%s" $(date +%s))
       - echo $API_KEY_TIMESTAMP
     run-as: root
   build:
