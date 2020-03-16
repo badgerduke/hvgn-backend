@@ -34,7 +34,7 @@ provider:
   memorySize: 128
   timeout: 3
   apiKeys:
-    - name: ${self:service}-${opt:stage, self:provider.stage}-${opt:api-key-timestamp}
+    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
       value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
       description: ${opt:stage, self:provider.stage} api key
   usagePlan:
