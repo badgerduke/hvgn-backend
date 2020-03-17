@@ -64,7 +64,7 @@ functions:
           private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
-            headers: ${self:custom.allowedHeaders}
+            headers: ${self:custom.allowedHeaders.${$opt:stage, self:provider.stage}}
             methods: ${self:custom.allowedMethods}
   getIndividualById:
     handler: get-individual-by-id/get-individual-by-id.handler
@@ -76,7 +76,7 @@ functions:
           private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
-            headers: ${self:custom.allowedHeaders}
+            headers: ${self:custom.allowedHeaders.${$opt:stage, self:provider.stage}}
             methods: ${self:custom.allowedMethods}
 resources:
   Resources:
