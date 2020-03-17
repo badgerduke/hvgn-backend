@@ -4,6 +4,7 @@ plugins:
   - serverless-offline
   - serverless-pseudo-parameters
   - serverless-domain-manager
+  - serverless-add-api-key
 
 custom:
   allowedHeaders:
@@ -34,7 +35,7 @@ provider:
   memorySize: 128
   timeout: 3
   apiKeys:
-    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
+    - name: ${self:service}-${opt:stage, self:provider.stage}
       value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
       description: ${opt:stage, self:provider.stage} api key
   usagePlan:
