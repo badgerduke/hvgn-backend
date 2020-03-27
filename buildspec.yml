@@ -16,6 +16,7 @@ phases:
       - echo HVGN backend deploy beginning at `date`
       - API_KEY_TIMESTAMP=$(date +%s)
       - echo $API_KEY_TIMESTAMP
+      - aws apigateway list-api-keys --api-id dev-hvgn-backend
     run-as: root
   build:
     commands:
