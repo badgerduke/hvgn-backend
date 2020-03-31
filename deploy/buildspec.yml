@@ -17,6 +17,7 @@ phases:
       - SLS_DEBUG=*
       - API_KEY_TIMESTAMP=$(date +%s)
       - echo $API_KEY_TIMESTAMP
+      - bash deploy/delete-api-keys.sh $env
     run-as: root
   build:
     commands:
