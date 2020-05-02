@@ -21,7 +21,7 @@ module.exports.handler = async function(event, context) {
   try {
     const individual = await getItem(
         individualTableName,
-        "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC, NOTE",
+        "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC, NOTE, FAMC",
         ddbKey("INDVID", inidividualId)
     );
     const privateIndividual = extractIndividualInformation(privatizeIndividual(individual.Item));
@@ -64,7 +64,20 @@ let extractIndividualInformation = function(individualData) {
   inidividual.birthLocation = individualData.BIRTPLAC;
   inidividual.deathdate = individualData.DEATDATE;
   inidividual.deathLocation = individualData.DEATPLAC;
+  inidividual.familyOfOrigin = individualData.FAMC;
+  if (individualData.FAMS) {
+    inidividual.firstFamilyStarted = getMinimumInArray(individualData.FAMS.values);
+  }
   return inidividual;
+};
+
+let getMinimumInArray = function(array) {
+  if (array && array.length) {
+    array.sort((a, b) => a - b);
+    return JSON.stringify(Number(array[0]));
+  } else {
+    return null;
+  }
 };
 
 let privatizeIndividual = individualItem => {
