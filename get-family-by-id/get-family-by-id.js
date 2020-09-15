@@ -9,8 +9,12 @@ const docClient = new AWS.DynamoDB.DocumentClient({
 const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
-const privatizeStartYear = process.env.PRIVATE_YEAR;
-const hvgnTableName = process.env.HVGN_TABLE;
+//const privatizeStartYear = process.env.PRIVATE_YEAR;
+//const hvgnTableName = process.env.HVGN_TABLE;
+const privatizeStartYear = 1920;
+const hvgnTableName = "hvgn-dev";
+
+
 const allowedOrigin = process.env.ALLOWED_ORIGIN;
 
 module.exports.handler = async function(event, context) {
@@ -188,7 +192,8 @@ const transformAltPartnerData = (familyData, parentsArray) => {
   familyData.Items.forEach(item => {
     if (item.TYPE === 'FA') {
       parentsArray.forEach(parent => {
-        if (item.PIN === parent.SK) {
+        console.log(`PIN: ${item.PIN}, SK: ${parent.id}`);
+        if (item.PIN === parent.id) {
           parent.otherFamilies.push({
             familyId: item.FAM.substring(1, item.FAM.length),
             spouseName: item.NAME
@@ -260,6 +265,7 @@ let privatizeIndividual = individualItem => {
 let extractParentInformation = function(parentItem) {
   //{"BDT":"09 SEP 1938","GNM":"John Eugene","SEX":"M","FOO":"F5","VERS":1,"BLC":"Madison, Wisconsin.","USER":"me_eric","SK":"P2","FMS":["F1","F2","F772"],"PK":"F1","SUR":"Hamacher","TYPE":"FP"}
   const parent = {};
+  parent.id = parentItem.SK;
   parent.surname = parentItem.SUR;
   parent.givenName = parentItem.GNM;
   parent.suffix = parentItem.SUF;
@@ -317,7 +323,7 @@ const transformChildrenData = (familyData) => {
 let getMinimumInArray = function(array) {
   if (array && array.length) {
     array.sort((a, b) => Number(a.substring(1, a.length)) - Number(b.substring(1, b.length)));
-    return JSON.stringify(array[0].substring(1, array[0].length));
+    return Number(array[0].substring(1, array[0].length));
   } else {
     return null;
   }
