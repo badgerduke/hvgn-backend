@@ -9,13 +9,14 @@ const docClient = new AWS.DynamoDB.DocumentClient({
 const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
-//const privatizeStartYear = process.env.PRIVATE_YEAR;
-//const hvgnTableName = process.env.HVGN_TABLE;
-const privatizeStartYear = 1920;
-const hvgnTableName = "hvgn-dev";
-
-
 const allowedOrigin = process.env.ALLOWED_ORIGIN;
+const privatizeStartYear = process.env.PRIVATE_YEAR;
+const hvgnTableName = process.env.HVGN_TABLE;
+//const privatizeStartYear = 1920;
+//const hvgnTableName = "hvgn-dev";
+
+
+
 
 module.exports.handler = async function(event, context) {
   const bodyToReturn = { parents: [], children: [] };
