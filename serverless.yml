@@ -105,21 +105,9 @@ resources:
                   Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
-                    - dynamodb:GetItem
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
-                - Effect: Allow
-                  Action:
-                    - dynamodb:GetItem
-                    - dynamodb:Query
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}" 
-                - Effect: Allow
-                  Action:
                     - dynamodb:Query
                   Resource: 
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}" 
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}/index/${self:provider.environment.FAMILY_TABLE}-fatherIdGSI"
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.FAMILY_TABLE}/index/${self:provider.environment.FAMILY_TABLE}-motherIdGSI"
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.CHILDREN_TABLE}/index/${self:provider.environment.CHILDREN_TABLE}-familyIdGSI"
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
     getIndividualByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
@@ -148,9 +136,5 @@ resources:
                   Resource: "arn:aws:logs:us-east-1:093879445146:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
-                    - dynamodb:GetItem
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.INDIVIDUAL_TABLE}"
-                - Effect: Allow
-                  Action:
-                    - dynamodb:GetItem
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.NOTE_TABLE}"          
+                    - dynamodb:Query
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"          
