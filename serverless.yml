@@ -42,8 +42,8 @@ provider:
       limit: 1000
       #offset: 2
       period: MONTH
-    #throttle:
-      #burstLimit: 200
+    throttle:
+      burstLimit: 200
       #rateLimit: 100
   environment:
     HVGN_TABLE: hvgn-${opt:stage, self:provider.stage}
