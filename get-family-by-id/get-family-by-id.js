@@ -9,10 +9,9 @@ const docClient = new AWS.DynamoDB.DocumentClient({
 const completeDateRegex = new RegExp(
   /^((\d{2})\s)?((JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s)?(\d{4})$/
 );
-const privatizeStartYear = process.env.PRIVATE_YEAR;
-const familyTableName = process.env.FAMILY_TABLE;
-const individualTableName = process.env.INDIVIDUAL_TABLE;
-const childrenTableName = process.env.CHILDREN_TABLE;
+//const privatizeStartYear = process.env.PRIVATE_YEAR;
+const privatizeStartYear = 1920
+const hvgnTableName = process.env.HVGN_TABLE;
 const allowedOrigin = process.env.ALLOWED_ORIGIN;
 
 module.exports.handler = async function(event, context) {
@@ -23,18 +22,39 @@ module.exports.handler = async function(event, context) {
   response.headers = { "Access-Control-Allow-Origin": allowedOrigin };
 
   try {
-    const familyData = await getItem(
-      familyTableName,
-      "FAMID, HUSB, WIFE",
-      ddbKey("FAMID", familyId)
+    const familyData = await getItemsByPK(
+      //hvgnTableName,
+      "hvgn-dev",
+      `F${familyId}`
     );
-    //console.log(`familyData = '${JSON.stringify(familyData)}'`)
-    if (Object.entries(familyData).length === 0) {
+
+    // console.log(`data = ${JSON.stringify(familyData)}`);  
+
+/*     {"Items":
+    [{"FAM":"F772","AIN":"I2094","PIN":"P2","VERS":1,"SK":"A2094#1","PK":"F1","TYPE":"FA","NAME":"Lana Unknown "}
+    ,{"FAM":"F2","AIN":"I6","PIN":"P2","VERS":1,"SK":"A6#1","PK":"F1","TYPE":"FA","NAME":"Sarah Elizabeth Huelster "},
+    {"BDT":"11 FEB 1971","NAT":"true","GNM":"John Eric","SEX":"M","VERS":1,"USER":"me_eric","SK":"C1","PK":"F1","SUR":"Hamacher","TYPE":"FC"}
+    ,{"BDT":"28 AUG 1963","NAT":"true","GNM":"Christine Elizabeth","SEX":"F","VERS":1,"USER":"me_eric","SK":"C4","FMS":["F3"],"PK":"F1","SUR":"Hamacher","TYPE":"FC"},
+    {"BDT":"17 NOV 1965","NAT":"true","GNM":"Andrea Lynn","SEX":"F","VERS":1,"USER":"me_eric","SK":"C5","FMS":["F4"],"PK":"F1","SUR":"Hamacher","TYPE":"FC"},
+    {"USER":"me_eric","SK":"D","PK":"F1","MDT":"09 JUN 1962","TYPE":"FD","VERS":1},
+    {"LNS":"Marriage Details: 502, 506","USER":"me_eric","SK":"N770","PK":"F1","TYPE":"FN","VERS":1},
+    {"BDT":"09 SEP 1938","GNM":"John Eugene","SEX":"M","FOO":"F5","VERS":1,"BLC":"Madison, Wisconsin.","USER":"me_eric","SK":"P2","FMS":["F1","F2","F772"],"PK":"F1","SUR":"Hamacher","TYPE":"FP"},
+    {"BDT":"28 SEP 1940","GNM":"Marjorie Ellen","SEX":"F","FOO":"F11","VERS":1,"BLC":"Albuquerque, New Mexico.","USER":"me_eric","SK":"P3","FMS":["F1"],"PK":"F1","SUR":"Patek","TYPE":"FP"}
+  ],"Count":9,"ScannedCount": 9}*/
+
+     if (familyData.Items.length === 0) {
       // We need it find an item, throw a 404.
       response.statusCode = 404;
-      response.body = `Family with familyId of '${familyId}' was not found`;
-    } else {
-      bodyToReturn.familyId = familyId;
+      response.body = `Family with familyId of 'F${familyId}' was not found`;
+    } 
+    else {
+      const parentsData = transformParentData(familyData);
+      transformAltPartnerData(familyData, parentsData);
+      bodyToReturn.children = transformChildrenData(familyData)
+      bodyToReturn.parents = parentsData;
+    }
+
+/*      bodyToReturn.familyId = familyId;
       const father = familyData.Item.HUSB;
       const mother = familyData.Item.WIFE;
       let fatherPromise;
@@ -135,7 +155,7 @@ module.exports.handler = async function(event, context) {
           extractParentInformation(privatizeIndividual(motherData.Item))
         );
       }
-    }
+    } */
   } catch (err) {
     console.log(err);
     response.statusCode = 500;
@@ -165,45 +185,125 @@ let ddbKey = (
   return key;
 };
 
+const transformAltPartnerData = (familyData, parentsArray) => {
+
+  familyData.Items.forEach(item => {
+    if (item.TYPE === 'FA') {
+      parentsArray.forEach(parent => {
+        if (item.PIN === parent.SK) {
+          parent.otherFamilies.push({
+            familyId: item.FAM.substring(1, item.FAM.length),
+            spouseName: item.NAME
+          })
+        }
+      })
+    }
+  });
+}
+
+const transformParentData = (familyData, altPartnersData) => {
+  const parentsArray = [];
+
+  const parentsData = familyData.Items.filter( item => {
+    return item.TYPE === 'FP';
+  })
+
+  if (parentsData.length === 2) {
+    if (parentsData[0].SEX === 'M') {
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[1])));
+    }
+    else if (parentsData[1].SEX === 'M') {
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[1])));
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+    }
+    else if (parentsData[0].SEX === 'F') {
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[1])));
+    }
+    else if (parentsData[1].SEX === 'F') {
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[1])));
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+    }
+    else {
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+      parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[1])));
+    }
+  }
+  else if (parentsData.length === 1) {
+    parentsArray.push(extractParentInformation(privatizeIndividual(parentsData[0])));
+  }
+  return parentsArray;
+
+};
+
 let privatizeIndividual = individualItem => {
   let returnedItem = {};
   Object.assign(returnedItem, individualItem);
 
-  let birthdate = individualItem.BIRTDATE;
+  let birthdate = individualItem.BDT;
   if (completeDateRegex.test(birthdate)) {
     const birthdateRegexMatches = birthdate.match(completeDateRegex);
     //console.log("birth year = " + birthdateRegexMatches[5]);
-    let deathdate = individualItem.DEATDATE;
+    let deathdate = individualItem.DDT;
     if (
       privatizeStartYear - 1 < Number(birthdateRegexMatches[5]) &&
       (deathdate == "" || !completeDateRegex.test(deathdate))
     ) {
-      returnedItem.BIRTDATE = "Private";
-      if (individualItem.BIRTPLAC) {
-        returnedItem.BIRTPLAC.S = "Private";
+      returnedItem.BDT = "Private";
+      if (individualItem.BLC) {
+        returnedItem.BLC = "Private";
       }
     }
   }
   return returnedItem;
 };
 
-let extractParentInformation = function(parentData) {
+let extractParentInformation = function(parentItem) {
+  //{"BDT":"09 SEP 1938","GNM":"John Eugene","SEX":"M","FOO":"F5","VERS":1,"BLC":"Madison, Wisconsin.","USER":"me_eric","SK":"P2","FMS":["F1","F2","F772"],"PK":"F1","SUR":"Hamacher","TYPE":"FP"}
   const parent = {};
-  parent.id = parentData.INDVID;
-  parent.surname = parentData.SURN;
-  parent.givenName = parentData.GIVEN;
-  parent.suffix = parentData.SUFF;
-  parent.gender = parentData.SEX;
-  parent.birthdate = parentData.BIRTDATE;
-  parent.birthloc = parentData.BIRTPLAC;
-  parent.deathdate = parentData.DEATDATE;
-  parent.deathloc = parentData.DEATPLAC;
-  parent.familyOfOrigin = parentData.FAMC;
-  parent.otherFamilies = parentData.otherFamilies;
+  parent.surname = parentItem.SUR;
+  parent.givenName = parentItem.GNM;
+  parent.suffix = parentItem.SUF;
+  parent.gender = parentItem.SEX;
+  parent.birthdate = parentItem.BDT;
+  parent.birthloc = parentItem.BLC;
+  parent.deathdate = parentItem.DDT;
+  parent.deathloc = parentItem.DLC;
+  parent.familyOfOrigin = parentItem.FOO.substring(1, parentItem.FOO.length);
+  parent.otherFamilies = [];
   return parent;
 };
 
-let extractNaturalFromChildren = function(childrenTableItems, childId) {
+const transformChildrenData = (familyData) => {
+  const children = [];
+
+  familyData.Items.forEach(item => {
+    if (item.TYPE === 'FC') {
+      const fms = item.FMS;
+      let familyIdToDisplay = null;
+      if (fms) {
+        familyIdToDisplay = getMinimumInArray(fms);
+      }
+      const privatizedChild = privatizeIndividual(item);
+      children.push({
+        childId: privatizedChild.SK.substring(1, item.SK.length),
+        surname: privatizedChild.SUR,
+        givenName: privatizedChild.GNM,
+        suffix: privatizedChild.SUF,
+        birthdate: privatizedChild.BDT,
+        sex: privatizedChild.SEX,
+        naturalOfParents: privatizedChild.NAT,
+        familyIdToDisplay: familyIdToDisplay
+      })
+    }
+  });
+
+  return children;
+};
+
+
+/* let extractNaturalFromChildren = function(childrenTableItems, childId) {
   let natural = {};
 
   for (let i = 0; i < childrenTableItems.length; i++) {
@@ -214,18 +314,44 @@ let extractNaturalFromChildren = function(childrenTableItems, childId) {
   }
 
   return natural;
-};
+}; */
 
 let getMinimumInArray = function(array) {
   if (array && array.length) {
-    array.sort((a, b) => a - b);
-    return JSON.stringify(Number(array[0]));
+    array.sort((a, b) => Number(a.substring(1, a.length)) - Number(b.substring(1, b.length)));
+    return JSON.stringify(array[0].substring(1, array[0].length));
   } else {
     return null;
   }
 };
 
-let constructParentOtherFamiliesData = (
+let getItemsByPK = (tableName, partitionKey) => {
+  return new Promise((resolve, reject) => {
+    try {
+      docClient.query(
+        {
+          TableName: tableName,
+          KeyConditionExpression: 'PK = :hkey',
+          ExpressionAttributeValues: {
+            ':hkey': partitionKey
+          }
+        },
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`getItem returned data`);
+            resolve(JSON.parse(JSON.stringify(data)));
+          }
+        }
+      );
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+/* let constructParentOtherFamiliesData = (
   parentOtherFamiliesData,
   otherTableAttribute,
   currentFamilyId
@@ -264,9 +390,9 @@ let constructParentOtherFamiliesData = (
     }
     resolve(parentOtherFamilies);
   });
-};
+}; */
 
-let constructChildrenData = childrenData => {
+/* let constructChildrenData = childrenData => {
   return new Promise(async (resolve, reject) => {
     const childDataPromises = [];
     const childData = [];
@@ -313,55 +439,4 @@ let constructChildrenData = childrenData => {
     }
     resolve(children);
   });
-};
-
-let getItem = (tableName, projectExpression, ddbKey) => {
-  return new Promise((resolve, reject) => {
-    try {
-      docClient.get(
-        {
-          TableName: tableName,
-          Key: ddbKey,
-          ProjectionExpression: projectExpression,
-          ConsistentRead: false
-        },
-        (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            console.log(`getItem returned data`);
-            resolve(data);
-          }
-        }
-      );
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-
-let queryByGsi = (
-  tableName,
-  gsiIndexName,
-  keyExpression,
-  expressionAttributeValues
-) => {
-  return new Promise(function(resolve, reject) {
-    docClient.query(
-      {
-        TableName: tableName,
-        IndexName: gsiIndexName,
-        KeyConditionExpression: keyExpression,
-        ExpressionAttributeValues: expressionAttributeValues
-      },
-      (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          console.log(`query returned data`);
-          resolve(data);
-        }
-      }
-    );
-  });
-};
+}; */

@@ -46,10 +46,7 @@ provider:
       #burstLimit: 200
       #rateLimit: 100
   environment:
-    INDIVIDUAL_TABLE: Individual-${opt:stage, self:provider.stage}
-    FAMILY_TABLE: Family-${opt:stage, self:provider.stage}
-    CHILDREN_TABLE: Children-${opt:stage, self:provider.stage}
-    NOTE_TABLE: Note-${opt:stage, self:provider.stage}
+    HVGN_TABLE: hvgn-${opt:stage, self:provider.stage}
     PRIVATE_YEAR: 1920
     ALLOWED_ORIGIN: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
 
