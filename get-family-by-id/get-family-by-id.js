@@ -155,7 +155,9 @@ let extractParentInformation = function(parentItem) {
   parent.birthloc = parentItem.BLC;
   parent.deathdate = parentItem.DDT;
   parent.deathloc = parentItem.DLC;
-  parent.familyOfOrigin = parentItem.FOO.substring(1, parentItem.FOO.length);
+  if (parentItem.FOO) {
+    parent.familyOfOrigin = parentItem.FOO.substring(1, parentItem.FOO.length);
+  }
   parent.otherFamilies = [];
   return parent;
 };
