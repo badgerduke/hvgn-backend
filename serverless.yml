@@ -31,7 +31,7 @@ provider:
   runtime: nodejs10.x
   region: us-east-1
   stage: dev
-  memorySize: 128
+  memorySize: 256
   timeout: 3
   apiKeys:
     - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
