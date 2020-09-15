@@ -12,11 +12,6 @@ const completeDateRegex = new RegExp(
 const allowedOrigin = process.env.ALLOWED_ORIGIN;
 const privatizeStartYear = process.env.PRIVATE_YEAR;
 const hvgnTableName = process.env.HVGN_TABLE;
-//const privatizeStartYear = 1920;
-//const hvgnTableName = "hvgn-dev";
-
-
-
 
 module.exports.handler = async function(event, context) {
   const bodyToReturn = { parents: [], children: [] };
@@ -31,20 +26,6 @@ module.exports.handler = async function(event, context) {
       `F${familyId}`
     );
 
-    // console.log(`data = ${JSON.stringify(familyData)}`);  
-
-/*     {"Items":
-    [{"FAM":"F772","AIN":"I2094","PIN":"P2","VERS":1,"SK":"A2094#1","PK":"F1","TYPE":"FA","NAME":"Lana Unknown "}
-    ,{"FAM":"F2","AIN":"I6","PIN":"P2","VERS":1,"SK":"A6#1","PK":"F1","TYPE":"FA","NAME":"Sarah Elizabeth Huelster "},
-    {"BDT":"11 FEB 1971","NAT":"true","GNM":"John Eric","SEX":"M","VERS":1,"USER":"me_eric","SK":"C1","PK":"F1","SUR":"Hamacher","TYPE":"FC"}
-    ,{"BDT":"28 AUG 1963","NAT":"true","GNM":"Christine Elizabeth","SEX":"F","VERS":1,"USER":"me_eric","SK":"C4","FMS":["F3"],"PK":"F1","SUR":"Hamacher","TYPE":"FC"},
-    {"BDT":"17 NOV 1965","NAT":"true","GNM":"Andrea Lynn","SEX":"F","VERS":1,"USER":"me_eric","SK":"C5","FMS":["F4"],"PK":"F1","SUR":"Hamacher","TYPE":"FC"},
-    {"USER":"me_eric","SK":"D","PK":"F1","MDT":"09 JUN 1962","TYPE":"FD","VERS":1},
-    {"LNS":"Marriage Details: 502, 506","USER":"me_eric","SK":"N770","PK":"F1","TYPE":"FN","VERS":1},
-    {"BDT":"09 SEP 1938","GNM":"John Eugene","SEX":"M","FOO":"F5","VERS":1,"BLC":"Madison, Wisconsin.","USER":"me_eric","SK":"P2","FMS":["F1","F2","F772"],"PK":"F1","SUR":"Hamacher","TYPE":"FP"},
-    {"BDT":"28 SEP 1940","GNM":"Marjorie Ellen","SEX":"F","FOO":"F11","VERS":1,"BLC":"Albuquerque, New Mexico.","USER":"me_eric","SK":"P3","FMS":["F1"],"PK":"F1","SUR":"Patek","TYPE":"FP"}
-  ],"Count":9,"ScannedCount": 9}*/
-
      if (familyData.Items.length === 0) {
       // We need it find an item, throw a 404.
       response.statusCode = 404;
@@ -57,108 +38,7 @@ module.exports.handler = async function(event, context) {
       bodyToReturn.parents = parentsData;
     }
 
-/*      bodyToReturn.familyId = familyId;
-      const father = familyData.Item.HUSB;
-      const mother = familyData.Item.WIFE;
-      let fatherPromise;
-      let motherPromise;
-      let childrenPromise;
-      let fatherOtherFamiliesPromise;
-      let motherOtherFamiliesPromise;
-      let fatherData;
-      let motherData;
-      let fatherOtherFamiliesData;
-      let motherOtherFamiliesData;
-      let fatherOtherFamiliesProimise;
-      let motherOtherFamiliesProimise;
 
-      if (father) {
-        fatherPromise = getItem(
-          individualTableName,
-          "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
-          ddbKey("INDVID", father)
-        );
-      }
-      if (mother) {
-        motherPromise = getItem(
-          individualTableName,
-          "INDVID, FAMC, GIVEN, SURN, SUFF, SEX, BIRTDATE, BIRTPLAC, DEATDATE, DEATPLAC",
-          ddbKey("INDVID", mother)
-        );
-      }
-      childrenPromise = queryByGsi(childrenTableName, childrenTableName + "-familyIdGSI", "FAMID = :a", {
-        ":a": familyId
-      });
-
-      if (father) {
-        fatherOtherFamiliesPromise = queryByGsi(
-          familyTableName,
-          familyTableName + "-fatherIdGSI",
-          "HUSB = :a",
-          { ":a": father }
-        );
-      }
-
-      if (mother) {
-        motherOtherFamiliesPromise = queryByGsi(
-          familyTableName,
-          familyTableName + "-motherIdGSI",
-          "WIFE = :a",
-          { ":a": mother }
-        );
-      }
-
-      if (father) {
-        fatherData = await fatherPromise;
-      }
-      if (mother) {
-        motherData = await motherPromise;
-      }
-      const childrenData = await childrenPromise;
-
-      if (father) {
-        fatherOtherFamiliesData = await fatherOtherFamiliesPromise;
-      }
-      if (mother) {
-        motherOtherFamiliesData = await motherOtherFamiliesPromise;
-      }
-
-      if (father) {
-        fatherOtherFamiliesProimise = constructParentOtherFamiliesData(
-          fatherOtherFamiliesData,
-          "WIFE",
-          familyId
-        );
-      }
-      if (mother) {
-        motherOtherFamiliesProimise = constructParentOtherFamiliesData(
-          motherOtherFamiliesData,
-          "HUSB",
-          familyId
-        );
-      }
-      const childrenDataPromise = constructChildrenData(childrenData);
-
-      if (father) {
-        fatherData.Item.otherFamilies = await fatherOtherFamiliesProimise;
-      }
-      if (mother) {
-        motherData.Item.otherFamilies = await motherOtherFamiliesProimise;
-      }
-
-      bodyToReturn.children = await childrenDataPromise;
-
-      if (father) {
-        bodyToReturn.parents.push(
-          extractParentInformation(privatizeIndividual(fatherData.Item))
-        );
-      }
-      if (mother) {
-        bodyToReturn.parents.push(
-          extractParentInformation(privatizeIndividual(motherData.Item))
-        );
-      }
-    } */
   } catch (err) {
     console.log(err);
     response.statusCode = 500;
@@ -307,20 +187,6 @@ const transformChildrenData = (familyData) => {
   return children;
 };
 
-
-/* let extractNaturalFromChildren = function(childrenTableItems, childId) {
-  let natural = {};
-
-  for (let i = 0; i < childrenTableItems.length; i++) {
-    if (childId === childrenTableItems[i].CHILDID) {
-      natural.father = childrenTableItems[i]._FREL;
-      natural.mother = childrenTableItems[i]._MREL;
-    }
-  }
-
-  return natural;
-}; */
-
 let getMinimumInArray = function(array) {
   if (array && array.length) {
     array.sort((a, b) => Number(a.substring(1, a.length)) - Number(b.substring(1, b.length)));
@@ -356,92 +222,4 @@ let getItemsByPK = (tableName, partitionKey) => {
   });
 };
 
-/* let constructParentOtherFamiliesData = (
-  parentOtherFamiliesData,
-  otherTableAttribute,
-  currentFamilyId
-) => {
-  return new Promise(async (resolve, reject) => {
-    const parentOtherSpousesPromises = [];
-    const parentOtherFamilies = [];
-    let parentOtherSpouseData = [];
 
-    try {
-      for (let i = 0; i < parentOtherFamiliesData.Items.length; i++) {
-        parentOtherSpousesPromises.push(
-          getItem(
-            individualTableName,
-            "INDVID, GIVEN, SURN, SUFF",
-            ddbKey(
-              "INDVID",
-              parentOtherFamiliesData.Items[i][otherTableAttribute]
-            )
-          )
-        );
-      }
-
-      for (let j = 0; j < parentOtherSpousesPromises.length; j++) {
-        parentOtherSpouseData = await parentOtherSpousesPromises[j];
-        const familyId = parentOtherFamiliesData.Items[j].FAMID;
-        if (familyId !== currentFamilyId) {
-          parentOtherFamilies.push({
-            familyId: familyId,
-            spouseName: `${parentOtherSpouseData.Item.GIVEN} ${parentOtherSpouseData.Item.SURN}`
-          });
-        }
-      }
-    } catch (err) {
-      reject(err);
-    }
-    resolve(parentOtherFamilies);
-  });
-}; */
-
-/* let constructChildrenData = childrenData => {
-  return new Promise(async (resolve, reject) => {
-    const childDataPromises = [];
-    const childData = [];
-    const children = [];
-
-    try {
-      for (let i = 0; i < childrenData.Items.length; i++) {
-        childDataPromises.push(
-          getItem(
-            individualTableName,
-            "INDVID, FAMS, GIVEN, SURN, SUFF, SEX, BIRTDATE, DEATDATE",
-            ddbKey("INDVID", childrenData.Items[i].CHILDID)
-          )
-        );
-      }
-
-      for (let j = 0; j < childDataPromises.length; j++) {
-        singleChildData = await childDataPromises[j];
-        childData.push(privatizeIndividual(singleChildData.Item));
-      }
-
-      for (let k = 0; k < childData.length; k++) {
-        const childId = childData[k].INDVID;
-        const natural = extractNaturalFromChildren(childrenData.Items, childId);
-        const fams = childData[k].FAMS;
-        let familyIdToDisplay = null;
-        if (fams) {
-          familyIdToDisplay = getMinimumInArray(fams.values);
-        }
-        children.push({
-          childId: childId,
-          surname: `${childData[k].SURN}`,
-          givenName: `${childData[k].GIVEN}`,
-          suffix: `${childData[k].SUFF}`,
-          birthdate: childData[k].BIRTDATE,
-          sex: childData[k].SEX,
-          naturalOfFather: natural.father,
-          naturalOfMother: natural.mother,
-          familyIdToDisplay: familyIdToDisplay
-        });
-      }
-    } catch (err) {
-      reject(err);
-    }
-    resolve(children);
-  });
-}; */
