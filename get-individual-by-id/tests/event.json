@@ -52,7 +52,7 @@
     }, 
     "pathParameters": {
       "proxy": "/path/to/resource",
-      "id": "13"
+      "id": "99992"
     }, 
     "httpMethod": "POST", 
     "stageVariables": {

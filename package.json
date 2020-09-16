@@ -4,7 +4,8 @@
   "description": "family history serverless deployment",
   "main": "index.js",
   "scripts": {
-    "test": "run-local-lambda --file get-family-by-id/get-family-by-id.js --event ./get-family-by-id/tests/event.json --timeout 300",
+    "test:indv": "run-local-lambda --file get-individual-by-id/get-individual-by-id.js --event ./get-individual-by-id/tests/event.json --timeout 300",
+    "test:family": "run-local-lambda --file get-family-by-id/get-family-by-id.js --event ./get-family-by-id/tests/event.json --timeout 300",
     "deploy:dev": "serverless deploy --stage dev --region us-east-1",
     "test2": "serverless invoke local --function getFamilyById --path tests/event.json -e HVGN_TABLE=hvgn-dev"
   },
