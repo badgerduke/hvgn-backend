@@ -146,7 +146,7 @@ let privatizeIndividual = individualItem => {
 let extractParentInformation = function(parentItem) {
   //{"BDT":"09 SEP 1938","GNM":"John Eugene","SEX":"M","FOO":"F5","VERS":1,"BLC":"Madison, Wisconsin.","USER":"me_eric","SK":"P2","FMS":["F1","F2","F772"],"PK":"F1","SUR":"Hamacher","TYPE":"FP"}
   const parent = {};
-  parent.id = parentItem.SK;
+  parent.id = parentItem.SK.substring(1, parentItem.SK.length);
   parent.surname = parentItem.SUR;
   parent.givenName = parentItem.GNM;
   parent.suffix = parentItem.SUF;
