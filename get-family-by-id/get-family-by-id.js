@@ -74,7 +74,7 @@ const transformAltPartnerData = (familyData, parentsArray) => {
     if (item.TYPE === 'FA') {
       parentsArray.forEach(parent => {
         console.log(`PIN: ${item.PIN}, SK: ${parent.id}`);
-        if (item.PIN === parent.id) {
+        if (item.PIN === `P${parent.id}`) {
           parent.otherFamilies.push({
             familyId: item.FAM.substring(1, item.FAM.length),
             spouseName: item.NAME
