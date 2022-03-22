@@ -26,6 +26,8 @@ phases:
       - sls package --package artifacts/dev -s dev -v
       - echo packaging prod artifacts
       - sls package --package artifacts/prod -s prod -v
+      - ls -al
+      - ls -al artifacts
     run-as: root
   post_build:
     commands:
