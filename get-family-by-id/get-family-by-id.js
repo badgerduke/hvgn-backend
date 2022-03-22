@@ -152,9 +152,9 @@ let extractParentInformation = function(parentItem) {
   parent.suffix = parentItem.SUF;
   parent.gender = parentItem.SEX;
   parent.birthdate = parentItem.BDT;
-  parent.birthloc = parentItem.BLC;
+  parent.birthLocation = parentItem.BLC;
   parent.deathdate = parentItem.DDT;
-  parent.deathloc = parentItem.DLC;
+  parent.deathLocation = parentItem.DLC;
   if (parentItem.FOO) {
     parent.familyOfOrigin = parentItem.FOO.substring(1, parentItem.FOO.length);
   }
@@ -174,12 +174,12 @@ const transformChildrenData = (familyData) => {
       }
       const privatizedChild = privatizeIndividual(item);
       children.push({
-        childId: privatizedChild.SK.substring(1, item.SK.length),
+        id: privatizedChild.SK.substring(1, item.SK.length),
         surname: privatizedChild.SUR,
         givenName: privatizedChild.GNM,
         suffix: privatizedChild.SUF,
         birthdate: privatizedChild.BDT,
-        sex: privatizedChild.SEX,
+        gender: privatizedChild.SEX,
         naturalOfParents: privatizedChild.NAT,
         familyIdToDisplay: familyIdToDisplay
       })

@@ -4,6 +4,7 @@ plugins:
   - serverless-offline
   - serverless-pseudo-parameters
   - serverless-domain-manager
+  - serverless-plugin-aws-alerts
 
 custom:
   allowedHeaders:
@@ -25,6 +26,24 @@ custom:
     certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
+  alerts:
+    stages:
+      - dev
+      - prod
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage, self:provider.stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: erichamacher@protonmail.com
+    definitions:  # these defaults are merged with your definitions
+      functionErrors:
+        period: 300
+        statistic: Maximum
+        nameTemplate: $[functionName]-${opt:stage, self:provider.stage}-Errors-Alarm
+        prefixTemplate: $[stackName]
+    alarms:
+      - functionErrors
 
 provider:
   name: aws
@@ -33,10 +52,10 @@ provider:
   stage: dev
   memorySize: 256
   timeout: 3
-  apiKeys:
-    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
-      value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
-      description: ${opt:stage, self:provider.stage} api key
+#  apiKeys:
+#    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
+#      value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
+#      description: ${opt:stage, self:provider.stage} api key
   usagePlan:
     quota:
       limit: 1000
@@ -58,11 +77,13 @@ functions:
       - http:
           path: /family/{id}
           method: get
-          private: true
+ #         private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
             methods: ${self:custom.allowedMethods}
+    alarms:
+      - functionErrors
   getIndividualById:
     handler: get-individual-by-id/get-individual-by-id.handler
     role: getIndividualByIdExecutionRole
@@ -70,11 +91,13 @@ functions:
       - http:
           path: /individual/{id}
           method: get
-          private: true
+#          private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
             methods: ${self:custom.allowedMethods}
+    alarms:
+      - functionErrors
 resources:
   Resources:
     getFamilyByIdExecutionRole:
