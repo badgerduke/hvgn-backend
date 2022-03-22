@@ -4,7 +4,6 @@ phases:
     runtime-versions:
       nodejs: latest
     commands:
-      - ls -al $CODEBUILD_SRC_DIR
       - echo running apt-get update ...
       - apt-get update
       - echo running npm install ...
@@ -16,9 +15,6 @@ phases:
     commands:
       - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
-#      - API_KEY_TIMESTAMP=$(date +%s)
-#      - echo $API_KEY_TIMESTAMP
-#      - bash deploy/delete-api-keys.sh $env
     run-as: root
   build:
     commands:
@@ -26,7 +22,7 @@ phases:
       - ls -al $CODEBUILD_SRC_DIR
       - cp -r $CODEBUILD_SRC_DIR/artifacts/$env/* ./.serverless
       - serverless create_domain
-      - serverless deploy --stage $env --package .serverless -v
+      - serverless deploy --stage $env --package .serverless --verbose
     run-as: root
   post_build:
     commands:

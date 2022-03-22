@@ -26,8 +26,6 @@ phases:
       - serverless package --package artifacts/dev -s dev --verbose
       - echo packaging prod artifacts
       - serverless package --package artifacts/prod -s prod --verbose
-      - ls -al
-      - ls -al artifacts/dev
     run-as: root
   post_build:
     commands:
