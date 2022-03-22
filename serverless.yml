@@ -56,13 +56,13 @@ provider:
 #    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
 #      value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
 #      description: ${opt:stage, self:provider.stage} api key
-  usagePlan:
-    quota:
-      limit: 1000
+#  usagePlan:
+#    quota:
+#      limit: 1000
       #offset: 2
-      period: MONTH
-    throttle:
-      burstLimit: 200
+#      period: MONTH
+ #   throttle:
+ #     burstLimit: 200
       #rateLimit: 100
   environment:
     HVGN_TABLE: hvgn-${opt:stage, self:provider.stage}
