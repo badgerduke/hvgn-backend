@@ -52,18 +52,6 @@ provider:
   stage: dev
   memorySize: 256
   timeout: 3
-#  apiKeys:
-#    - name: ${self:service}-${opt:stage, self:provider.stage}-${env:API_KEY_TIMESTAMP}
-#      value: ${ssm:/api.hvgn.net/${opt:stage, self:provider.stage}/apikey~true}
-#      description: ${opt:stage, self:provider.stage} api key
-#  usagePlan:
-#    quota:
-#      limit: 1000
-      #offset: 2
-#      period: MONTH
- #   throttle:
- #     burstLimit: 200
-      #rateLimit: 100
   environment:
     HVGN_TABLE: hvgn-${opt:stage, self:provider.stage}
     PRIVATE_YEAR: 1920
@@ -77,7 +65,6 @@ functions:
       - http:
           path: /family/{id}
           method: get
- #         private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
@@ -91,7 +78,6 @@ functions:
       - http:
           path: /individual/{id}
           method: get
-#          private: true
           cors:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
