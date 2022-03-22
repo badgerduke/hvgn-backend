@@ -26,24 +26,24 @@ custom:
     certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
-  alerts:
-    stages:
-      - dev
-      - prod
-    topics:
-      alarm:
-        topic: ${self:service}-${opt:stage, self:provider.stage}-alerts-alarm
-        notifications:
-          - protocol: email
-            endpoint: erichamacher@protonmail.com
-    definitions:  # these defaults are merged with your definitions
-      functionErrors:
-        period: 300
-        statistic: Maximum
-        nameTemplate: $[functionName]-${opt:stage, self:provider.stage}-Errors-Alarm
-        prefixTemplate: $[stackName]
-    alarms:
-      - functionErrors
+#  alerts:
+#    stages:
+#      - dev
+#      - prod
+#    topics:
+#      alarm:
+#        topic: ${self:service}-${opt:stage, self:provider.stage}-alerts-alarm
+#        notifications:
+#          - protocol: email
+#            endpoint: erichamacher@protonmail.com
+#    definitions:  # these defaults are merged with your definitions
+#      functionErrors:
+#        period: 300
+#        statistic: Maximum
+#        nameTemplate: $[functionName]-${opt:stage, self:provider.stage}-Errors-Alarm
+#        prefixTemplate: $[stackName]
+#    alarms:
+#      - functionErrors
 
 provider:
   name: aws
