@@ -23,9 +23,9 @@ phases:
       - mkdir artifacts/dev
       - mkdir artifacts/prod
       - echo packaging dev artifacts
-      - serverless package --package artifacts/dev -s dev -v
+      - serverless package --package artifacts/dev -s dev --verbose
       - echo packaging prod artifacts
-      - serverless package --package artifacts/prod -s prod -v
+      - serverless package --package artifacts/prod -s prod --verbose
       - ls -al
       - ls -al artifacts/dev
     run-as: root
