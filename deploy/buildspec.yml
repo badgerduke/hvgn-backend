@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 10
+      nodejs: 16
     commands:
       - echo running apt-get update ...
       - apt-get update
@@ -15,9 +15,9 @@ phases:
     commands:
       - echo HVGN backend deploy $env beginning at `date`
       - SLS_DEBUG=*
-      - API_KEY_TIMESTAMP=$(date +%s)
-      - echo $API_KEY_TIMESTAMP
-      - bash deploy/delete-api-keys.sh $env
+#      - API_KEY_TIMESTAMP=$(date +%s)
+#      - echo $API_KEY_TIMESTAMP
+#      - bash deploy/delete-api-keys.sh $env
     run-as: root
   build:
     commands:
