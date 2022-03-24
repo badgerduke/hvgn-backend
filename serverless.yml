@@ -127,4 +127,25 @@ resources:
                 - Effect: Allow
                   Action:
                     - dynamodb:Query
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"          
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
+#    Alarm:
+#      Type: AWS::CloudWatch::Alarm
+#      Properties:
+#        AlarmName: PasswordChangedAlarm
+#        AlarmActions:
+#          - !Ref AlarmSNSTopic
+#        MetricName: ChangePassword
+#        Namespace: EC2
+#        ComparisonOperator: GreaterThanOrEqualToThreshold
+#        EvaluationPeriods: 1
+#        Period: 60
+#        Statistic: Sum
+#        Threshold: 1
+#        TreatMissingData: notBreaching
+#    AlarmSNSTopic:
+#      Type: AWS::SNS::Topic
+#      Properties:
+#        TopicName: AlarmTopic
+#        Subscription:
+#          - Protocol: email
+#            Endpoint: !Ref EmailAddress                          
