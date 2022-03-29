@@ -10,7 +10,6 @@ custom:
     - Accept
     - Content-Type
     - Content-Length
-    - X-Api-Key
   allowedOrigin:
     dev: "*"
     prod: "https://hvgn.net"
@@ -25,6 +24,9 @@ custom:
     certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
+  snsEmailSubscription:
+    dev: erichamacher@protonmail.com
+    prod: erichamacher@protonmail.com
 
 provider:
   name: aws
@@ -128,24 +130,38 @@ resources:
                   Action:
                     - dynamodb:Query
                   Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
-#    Alarm:
-#      Type: AWS::CloudWatch::Alarm
-#      Properties:
-#        AlarmName: PasswordChangedAlarm
-#        AlarmActions:
-#          - !Ref AlarmSNSTopic
-#        MetricName: ChangePassword
-#        Namespace: EC2
-#        ComparisonOperator: GreaterThanOrEqualToThreshold
-#        EvaluationPeriods: 1
-#        Period: 60
-#        Statistic: Sum
-#        Threshold: 1
-#        TreatMissingData: notBreaching
-#    AlarmSNSTopic:
-#      Type: AWS::SNS::Topic
-#      Properties:
-#        TopicName: AlarmTopic
-#        Subscription:
-#          - Protocol: email
-#            Endpoint: !Ref EmailAddress                          
+    ApiGateway4xxAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: apigateway-${opt:stage, self:provider.stage}-4xx-alarm
+        AlarmActions:
+          - !Ref ApiGatewayAlarmSNSTopic
+        MetricName: 4XXError
+        Namespace: ApiGateway
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 1
+        Period: 300
+        Statistic: Maximum
+        Threshold: 1
+        TreatMissingData: notBreaching
+    ApiGateway5xxAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: apigateway-${opt:stage, self:provider.stage}-5xx-alarm
+        AlarmActions:
+          - !Ref ApiGatewayAlarmSNSTopic
+        MetricName: 5XXError
+        Namespace: ApiGateway
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 1
+        Period: 300
+        Statistic: Maximum
+        Threshold: 1
+        TreatMissingData: notBreaching
+    ApiGatewayAlarmSNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: apigateway-${opt:stage, self:provider.stage}-topic
+        Subscription:
+          - Protocol: email
+            Endpoint: ${self:custom.snsEmailSubscription.${opt:stage, self:provider.stage}                         
