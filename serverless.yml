@@ -133,7 +133,7 @@ resources:
     ApiGateway4xxAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
-        AlarmName: apigateway-${opt:stage, self:provider.stage}-4xx-alarm
+        AlarmName: hvgn-apigateway-${opt:stage, self:provider.stage}-4xx-alarm
         AlarmActions:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 4XXError
@@ -147,7 +147,7 @@ resources:
     ApiGateway5xxAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
-        AlarmName: apigateway-${opt:stage, self:provider.stage}-5xx-alarm
+        AlarmName: hvgn-apigateway-${opt:stage, self:provider.stage}-5xx-alarm
         AlarmActions:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 5XXError
@@ -161,7 +161,7 @@ resources:
     ApiGatewayAlarmSNSTopic:
       Type: AWS::SNS::Topic
       Properties:
-        TopicName: apigateway-${opt:stage, self:provider.stage}-topic
+        TopicName: hvgn-apigateway-${opt:stage, self:provider.stage}-topic
         Subscription:
           - Protocol: email
             Endpoint: ${self:custom.snsEmailSubscription.${opt:stage, self:provider.stage}}                         
