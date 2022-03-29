@@ -138,6 +138,9 @@ resources:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 4XXError
         Namespace: ApiGateway
+        Dimensions:
+          - Name: ApiName
+            Value: ${opt:stage, self:provider.stage}-hvgn-backend
         ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 1
         Period: 300
@@ -152,6 +155,9 @@ resources:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 5XXError
         Namespace: ApiGateway
+        Dimensions:
+          - Name: ApiName
+            Value: ${opt:stage, self:provider.stage}-hvgn-backend
         ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 1
         Period: 300
