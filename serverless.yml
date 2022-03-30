@@ -137,7 +137,7 @@ resources:
         AlarmActions:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 4XXError
-        Namespace: ApiGateway
+        Namespace: AWS/ApiGateway
         Dimensions:
           - Name: ApiName
             Value: ${opt:stage, self:provider.stage}-hvgn-backend
@@ -156,7 +156,7 @@ resources:
         AlarmActions:
           - !Ref ApiGatewayAlarmSNSTopic
         MetricName: 5XXError
-        Namespace: ApiGateway
+        Namespace: AWS/ApiGateway
         Dimensions:
           - Name: ApiName
             Value: ${opt:stage, self:provider.stage}-hvgn-backend
