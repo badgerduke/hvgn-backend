@@ -141,6 +141,8 @@ resources:
         Dimensions:
           - Name: ApiName
             Value: ${opt:stage, self:provider.stage}-hvgn-backend
+          - Name: Stage
+            Value: ${opt:stage, self:provider.stage}
         ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 1
         Period: 300
