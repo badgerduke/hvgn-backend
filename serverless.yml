@@ -4,6 +4,7 @@ plugins:
   - serverless-offline
   - serverless-pseudo-parameters
   - serverless-domain-manager
+  - serverless-api-gateway-throttling
 
 custom:
   allowedHeaders:
@@ -17,13 +18,22 @@ custom:
   allowedMethods:
     - OPTIONS
     - GET
-  customDomain: 
+  apiGatewayThrottling:
+    maxRequestsPerSecond: ${self:custom.hvgnApiGatewayMaxRequestsPerSecond.${opt:stage, self:provider.stage}}
+    maxConcurrentRequests: ${self:custom.hvgnApiGatewayMaxConcurrentRequests.${opt:stage, self:provider.stage}}
+  customDomain:
     domainName: api.hvgn.net
     basePath: '${opt:stage, self:provider.stage}'
     stage: ${opt:stage, self:provider.stage}
     certificateName: 'hvgn.net'
     createRoute53Record: true
     hostedZoneId: ZKLR5656MV2RR
+  hvgnApiGatewayMaxRequestsPerSecond:
+    dev: 2
+    prod: 10
+  hvgnApiGatewayMaxConcurrentRequests:
+    dev: 3
+    prod: 11
   snsEmailSubscription:
     dev: erichamacher@protonmail.com
     prod: erichamacher@protonmail.com

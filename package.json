@@ -14,10 +14,10 @@
   "devDependencies": {
     "aws-sdk": "^2.377.0",
     "run-local-lambda": "^1.1.1",
+    "serverless-api-gateway-throttling": "^1.2.2",
     "serverless-domain-manager": "^3.3.1",
     "serverless-iam-roles-per-function": "^1.0.4",
-    "serverless-offline": "^5.12.0",
-    "serverless-plugin-aws-alerts": "^1.7.3"
+    "serverless-offline": "^5.12.0"
   },
   "dependencies": {
     "serverless-pseudo-parameters": "^2.5.0"
