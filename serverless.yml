@@ -109,7 +109,7 @@ resources:
                   Action:
                     - dynamodb:Query
                   Resource: 
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:${AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
     getIndividualByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
@@ -139,7 +139,7 @@ resources:
                 - Effect: Allow
                   Action:
                     - dynamodb:Query
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
     ApiGateway4xxAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
