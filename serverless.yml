@@ -100,16 +100,16 @@ resources:
                   Action:
                     - logs:CreateLogStream
                     - logs:CreateLogGroup
-                  Resource: "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
+                  Resource: "arn:aws:logs:us-east-1:#{AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
                 - Effect: Allow
                   Action: 
                     - logs:PutLogEvents
-                  Resource: "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
+                  Resource: "arn:aws:logs:us-east-1:#{AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
                     - dynamodb:Query
                   Resource: 
-                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:${AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
+                    - "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
     getIndividualByIdExecutionRole:
       Type: AWS::IAM::Role
       Properties:
@@ -131,15 +131,15 @@ resources:
                   Action:
                     - logs:CreateLogStream
                     - logs:CreateLogGroup
-                  Resource: "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
+                  Resource: "arn:aws:logs:us-east-1:#{AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*"
                 - Effect: Allow
                   Action: 
                     - logs:PutLogEvents
-                  Resource: "arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
+                  Resource: "arn:aws:logs:us-east-1:#{AWS::AccountId}:log-group:/aws/lambda/hvgn-backend-${opt:stage, self:provider.stage}*:*:*"
                 - Effect: Allow
                   Action:
                     - dynamodb:Query
-                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
+                  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:#{AWS::AccountId}:table/${self:provider.environment.HVGN_TABLE}"
     ApiGateway4xxAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
