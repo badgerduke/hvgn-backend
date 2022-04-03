@@ -50,6 +50,7 @@ provider:
     PRIVATE_YEAR: 1920
     ALLOWED_ORIGIN: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
 
+
 functions:
   getFamilyById:
     handler: get-family-by-id/get-family-by-id.handler
