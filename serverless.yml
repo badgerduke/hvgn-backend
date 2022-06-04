@@ -11,6 +11,7 @@ custom:
     - Accept
     - Content-Type
     - Content-Length
+    - Authorization
   allowedOrigin:
     dev: "*"
     prod: "https://hvgn.net"
@@ -21,6 +22,8 @@ custom:
   apiGatewayThrottling:
     maxRequestsPerSecond: ${self:custom.hvgnApiGatewayMaxRequestsPerSecond.${opt:stage, self:provider.stage}}
     maxConcurrentRequests: ${self:custom.hvgnApiGatewayMaxConcurrentRequests.${opt:stage, self:provider.stage}}
+  cognitoUserPoolArn:
+    dev: !ImportValue HvgnUserPoolArn-dev
   customDomain:
     domainName: api.hvgn.net
     basePath: '${opt:stage, self:provider.stage}'
@@ -63,6 +66,11 @@ functions:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
             methods: ${self:custom.allowedMethods}
+          authorizer:
+            name: hvgn-authorizer-family
+            arn: ${self:custom.cognitoUserPoolArn.${opt:stage, self:provider.stage}}
+            scopes:
+              - api.hvgn.net/hvgn
     alarms:
       - functionErrors
   getIndividualById:
@@ -76,6 +84,11 @@ functions:
             origin: ${self:custom.allowedOrigin.${opt:stage, self:provider.stage}, self:custom.allowedOrigin.other}
             headers: ${self:custom.allowedHeaders}
             methods: ${self:custom.allowedMethods}
+          authorizer:
+            name: hvgn-authorizer-individual
+            arn: ${self:custom.cognitoUserPoolArn.${opt:stage, self:provider.stage}}
+            scopes:
+              - api.hvgn.net/hvgn
     alarms:
       - functionErrors
 resources:
