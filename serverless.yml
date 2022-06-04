@@ -24,6 +24,7 @@ custom:
     maxConcurrentRequests: ${self:custom.hvgnApiGatewayMaxConcurrentRequests.${opt:stage, self:provider.stage}}
   cognitoUserPoolArn:
     dev: !ImportValue HvgnUserPoolArn-dev
+    prod: !ImportValue HvgnUserPoolArn-dev
   customDomain:
     domainName: api.hvgn.net
     basePath: '${opt:stage, self:provider.stage}'
