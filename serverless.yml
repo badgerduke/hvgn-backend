@@ -69,6 +69,7 @@ functions:
             methods: ${self:custom.allowedMethods}
           authorizer:
             name: hvgn-authorizer-family
+            type: COGNITO_USER_POOLS
             arn: ${self:custom.cognitoUserPoolArn.${opt:stage, self:provider.stage}}
             scopes:
               - api.hvgn.net/hvgn
@@ -87,6 +88,7 @@ functions:
             methods: ${self:custom.allowedMethods}
           authorizer:
             name: hvgn-authorizer-individual
+            type: COGNITO_USER_POOLS
             arn: ${self:custom.cognitoUserPoolArn.${opt:stage, self:provider.stage}}
             scopes:
               - api.hvgn.net/hvgn
