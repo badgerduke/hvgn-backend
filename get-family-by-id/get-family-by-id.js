@@ -14,7 +14,8 @@ const privatizeStartYear = process.env.PRIVATE_YEAR;
 const hvgnTableName = process.env.HVGN_TABLE;
 
 module.exports.handler = async function(event, context) {
-  console.log(`event ${event}`);
+  console.log(`event ${JSON.stringify(event)}`);
+  console.log(`authorizer ${JSON.stringify(event.requestContext.authorizer)}`);
   console.log(`role ${event.requestContext.authorizer.claims['cognito:role']}`);
   const bodyToReturn = { parents: [], children: [] };
   const familyId = event.pathParameters.id;
