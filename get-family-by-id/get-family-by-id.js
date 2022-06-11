@@ -14,13 +14,10 @@ const privatizeStartYear = process.env.PRIVATE_YEAR;
 const hvgnTableName = process.env.HVGN_TABLE;
 
 module.exports.handler = async function(event, context) {
-  console.log(`event ${JSON.stringify(event)}`);
-  console.log(`authorizer ${JSON.stringify(event.requestContext.authorizer)}`);
-  console.log(`role ${event.requestContext.authorizer.claims['cognito:role']}`);
+
   const bodyToReturn = { parents: [], children: [] };
   const familyId = event.pathParameters.id;
   const response = {};
-  console.log("Allowed origin should be * = " + allowedOrigin);
   response.headers = { "Access-Control-Allow-Origin": allowedOrigin };
 
   try {
