@@ -1,6 +1,5 @@
 node_modules
 .serverless
-sam.yaml
 template.yaml
 hvgn-cf-template.yaml
 
